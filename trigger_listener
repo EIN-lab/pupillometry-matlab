@@ -1,0 +1,21 @@
+import json
+from time import sleep
+
+try:
+    import RPi.GPIO as GPIO
+except RuntimeError:
+    print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
+
+GPIO.setmode(GPIO.BOARD)
+
+channel = ch_num
+
+GPIO.setup(channel, GPIO.IN)
+GPIO.add_event_detect(channel, GPIO.RISING)
+GPIO.add_event_callback(channel, cam_trigger)
+
+def cam_trigger(channel):
+    print('Trigger detected on channel %s'%channel)
+    acquire = True
+    while acquire:
+        # trigger camera
