@@ -1,13 +1,11 @@
 {
-    "cam_settings": [
-        {
-            "width": "1920",
-            "height": "1080",
-            "duration": "5000",
-            "fps": "30",
-            "rotation": "180"
-        }
-    ],
+    "cam_settings": {
+        "width": "1920",
+        "height": "1080",
+        "duration": "5000",
+        "fps": "30",
+        "rotation": "180"
+    },
     "paths": {
         "savepath": "/home/pi/mnt/finc/_Group/Projects/Astrocyte Calcium/Current Milestones/GYS1/Awake/Video/",
         "stream": "192.168.1.238",

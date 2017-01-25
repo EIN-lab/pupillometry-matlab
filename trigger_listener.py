@@ -1,9 +1,10 @@
 import sys
 import json
-import shlex, subprocess
+import shlex
 import datetime
 
 from time import sleep
+from subprocess import Popen, PIPE
 
 try:
     import RPi.GPIO as GPIO
@@ -12,7 +13,7 @@ except RuntimeError:
 
 ###
 
-# Set GPIo mode
+# Set GPIO mode
 GPIO.setmode(GPIO.BOARD)
 
 # Predefined values
@@ -22,9 +23,11 @@ fname = 'params.json'
 def cam_trigger(channel):
     print('Trigger detected on channel %s'%channel)
 
-    cmd = read_json(fname);
+    cmd = read_json(fname)
 
-    p1 = Popen([cmd['vid']], stdout=PIPE)
+    print(cmd["vid"])
+
+    p1 = Popen([cmd['vid']], stdout=PIPE, shell=True, bufsize=0)
     p2 = Popen([cmd['tee']], stdin=p1.stdout, stdout=PIPE)
     p3 = Popen([cmd['nc']], stdin=p2.stdout, stdout=PIPE)
     p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
@@ -49,14 +52,14 @@ def read_json(fname):
     prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
     duration = data["cam_settings"]["duration"]
-    filepath = "".join(data["paths"]["savepath"], prefix, data["paths"]["filename"])
+    filepath = "".join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
     ip = data["paths"]["stream"]
     port = "5001"
 
     # parse command
-    vid_cmd = " ".join("raspivid -o - -t", duration)
-    tee_cmd = " ".join("| tee", filepath)
-    nc_cmd = " ".join("| nc", ip, port)
+    vid_cmd = " ".join(("raspivid -o - -t", duration))
+    tee_cmd = " ".join(("| tee", filepath))
+    nc_cmd = " ".join(("| nc", ip, port))
 
     return {'vid':vid_cmd, 'tee':tee_cmd, 'nc':nc_cmd}
 

@@ -28,7 +28,7 @@ class MyOutput(object):
 
 # Connect a socket to a remote server on port 8000
 sock = socket.socket()
-sock.connect(('my_server', 8000))
+sock.connect(('192.168.1.238', 8000))
 
 with picamera.PiCamera() as camera:
     camera.resolution = (640, 480)
@@ -41,5 +41,5 @@ with picamera.PiCamera() as camera:
     # Record video to the custom output (we need to specify the format as
     # the custom output doesn't pretend to be a file with a filename)
     camera.start_recording(my_output, format='h264')
-    camera.wait_recording(30)
+    camera.wait_recording(10)
     camera.stop_recording()
