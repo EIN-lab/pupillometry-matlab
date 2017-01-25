@@ -25,33 +25,41 @@ channel = data["GPIO_pin"]
 def cam_trigger(channel):
     print('Trigger detected on channel %s'%channel)
 
+    cmd = read_json(fname)
+
+    p1 = Popen([cmd['vid']], stdout=PIPE)
+    p2 = Popen([cmd['tee']], stdin=p1.stdout, stdout=PIPE)
+    p3 = Popen([cmd['nc']], stdin=p2.stdout, stdout=PIPE)
+    p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
+    p2.stdout.close()
+    output = p2.communicate()[0]
+
+    #command_line = "raspivid -o - -t 5000 | tee /home/pi/mnt/finc/_Group/Projects/Astrocyte\ Calcium/Current\ Milestones/GYS1\ knockouts/Awake/Video/`date +%y-%m-%d`_video.h264 | nc 192.168.1.238 5001"
+
+    #args = shlex.split(command_line)
+    #print args
+    # send acquire command with parameters specified in .json
+    #p = subprocess.Popen(args)
+
+    # convert saved file to .mp4
+def read_json(fname)
     # Read params from external .json file
-    with open('params.json') as data_file:
+    with open(fname) as data_file:
         data = json.load(data_file)
 
     prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
-    raspivid = "raspivid -o - -t"
     duration = data["cam_settings"]["duration"]
-    tee = "| tee"
     filepath = "".join(data["paths"]["savepath"], prefix, data["paths"]["filename"])
-
-    nc = "| nc"
     ip = data["paths"]["stream"]
     port = "5001"
 
     # parse command
-    command_line = " ".join(raspivid, duration, tee, filepath, nc, ip, port)
+    vid_cmd = " ".join("raspivid -o - -t", duration)
+    tee_cmd = " ".join("| tee", filepath)
+    nc_cmd = " ".join("| nc", ip, port)
 
-    #command_line = "raspivid -o - -t 5000 | tee /home/pi/mnt/finc/_Group/Projects/Astrocyte\ Calcium/Current\ Milestones/GYS1\ knockouts/Awake/Video/`date +%y-%m-%d`_video.h264 | nc 192.168.1.238 5001"
-
-    args = shlex.split(command_line)
-    print args
-    # send acquire command with parameters specified in .json
-    p = subprocess.Popen(args)
-
-    # convert saved file to .mp4
-
+    return {'vid':vid_cmd, 'tee':tee_cmd, 'nc':nc_cmd}
 
 GPIO.setup(channel, GPIO.IN)
 GPIO.add_event_detect(channel, GPIO.RISING)
