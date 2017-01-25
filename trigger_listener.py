@@ -1,3 +1,4 @@
+import sys
 import json
 import shlex, subprocess
 import datetime
@@ -14,18 +15,14 @@ except RuntimeError:
 # Set GPIo mode
 GPIO.setmode(GPIO.BOARD)
 
-# Read params from external .json file
-with open('params.json') as data_file:
-    data = json.load(data_file)
-print(data)
-
-# Parse values
-channel = data["GPIO_pin"]
+# Predefined values
+channel = 7
+fname = 'params.json'
 
 def cam_trigger(channel):
     print('Trigger detected on channel %s'%channel)
 
-    cmd = read_json(fname)
+    cmd = read_json(fname);
 
     p1 = Popen([cmd['vid']], stdout=PIPE)
     p2 = Popen([cmd['tee']], stdin=p1.stdout, stdout=PIPE)
@@ -42,10 +39,12 @@ def cam_trigger(channel):
     #p = subprocess.Popen(args)
 
     # convert saved file to .mp4
-def read_json(fname)
+
+def read_json(fname):
     # Read params from external .json file
     with open(fname) as data_file:
         data = json.load(data_file)
+    print(data)
 
     prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
@@ -68,7 +67,8 @@ GPIO.add_event_callback(channel, cam_trigger)
 try:
     while True:
         print 'alive'
-        time.sleep(0.2)
+        sleep(0.2)
 except KeyboardInterrupt:
+    cam_trigger(channel)
     GPIO.cleanup()
     sys.exit()
