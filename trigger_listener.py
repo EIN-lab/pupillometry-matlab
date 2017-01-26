@@ -42,7 +42,7 @@ def cam_trigger(channel):
     #p = subprocess.Popen(args)
 
     # convert saved file to .mp4
-def read_json(fname)
+def read_json(fname):
     # Read params from external .json file
     with open(fname) as data_file:
         data = json.load(data_file)
