@@ -25,21 +25,58 @@ class MyOutput(object):
         self.output_file.close()
         self.output_sock.close()
 
+def read_json(fname):
+    # Read params from external .json file
+    with open(fname) as data_file:
+        params = json.loads(data_file)
 
-# Connect a socket to a remote server on port 8000
-sock = socket.socket()
-sock.connect(('192.168.1.238', 8000))
+    prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
-with picamera.PiCamera() as camera:
-    camera.resolution = (640, 480)
-    camera.framerate = 24
+    # construct full filename
+    params['filename'] = ''.join((prefix, params['filename'])
 
-    # Construct an instance of our custom output splitter with a filename
-    # and a connected socket
-    my_output = MyOutput('output.h264', sock)
+    # duration = data["cam_settings"]["duration"]
+    # filepath = "".join(data["paths"]["savepath"], prefix, data["paths"]["filename"])
+    # ip = data["paths"]["stream"]
+    # port = "5001"
+    #
+    # # parse command
+    # vid_cmd = " ".join("raspivid -o - -t", duration)
+    # tee_cmd = " ".join("| tee", filepath)
+    # nc_cmd = " ".join("| nc", ip, port)
+    #
+    # return {'vid':vid_cmd, 'tee':tee_cmd. 'nc':nc_cmd}
 
-    # Record video to the custom output (we need to specify the format as
-    # the custom output doesn't pretend to be a file with a filename)
-    camera.start_recording(my_output, format='h264')
-    camera.wait_recording(10)
-    camera.stop_recording()
+try:
+    while True:
+
+        # Connect a socket to a remote server on port 8000
+        sock = socket.socket()
+        sock.bind(('0.0.0.0', 8000))
+        sock.listen(0)
+
+        # Accept a single connection and make a file-like object out of it
+        connection = sock.accept()[0].makefile('rb')
+
+        # read params from json
+        params = read_json(filename)
+
+        with picamera.PiCamera() as camera:
+            camera.resolution = (params['width'], params['height'])
+            camera.framerate = params['fps']
+            camera.rotation = params['rotation']
+
+            # Construct an instance of our custom output splitter with a filename
+            # and a connected socket
+            my_output = MyOutput(params['filename'], sock)
+
+            # Record video to the custom output (we need to specify the format as the custom output doesn't pretend to be a file with a filename)
+            camera.start_recording(my_output, format='h264')
+            camera.wait_recording(params['duration'])
+            camera.stop_recording()
+
+        connection.close()
+
+except KeyboardInterrupt:
+    connection.close()
+    sock.close()
