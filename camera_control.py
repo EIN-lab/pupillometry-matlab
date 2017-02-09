@@ -33,7 +33,7 @@ def read_json(fname):
     prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
     # construct full filename
-    params['filename'] = ''.join((prefix, params['filename'])
+    params['filename'] = ''.join((prefix, params['filename']))
 
     # duration = data["cam_settings"]["duration"]
     # filepath = "".join(data["paths"]["savepath"], prefix, data["paths"]["filename"])
@@ -47,6 +47,7 @@ def read_json(fname):
     #
     # return {'vid':vid_cmd, 'tee':tee_cmd. 'nc':nc_cmd}
 
+
 try:
     while True:
 
@@ -59,6 +60,7 @@ try:
         connection = sock.accept()[0].makefile('rb')
 
         # read params from json
+        filename = "/home/pi/Code/Camera/Camera-Module/config.json"
         params = read_json(filename)
 
         with picamera.PiCamera() as camera:
