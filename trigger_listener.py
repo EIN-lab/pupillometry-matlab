@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import json
 import shlex
 import datetime
@@ -43,25 +43,25 @@ def cam_trigger(channel):
 
     # convert saved file to .mp4
     
-  def read_json(fname):
-    # Read params from external .json file
-    with open(fname) as data_file:
-        data = json.load(data_file)
-    print(data)
+def read_json(fname):
+  # Read params from external .json file
+  with open(fname) as data_file:
+      data = json.load(data_file)
+  print(data)
 
-    prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+  prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
-    duration = data["cam_settings"]["duration"]
-    filepath = "".join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
-    ip = data["paths"]["stream"]
-    port = "5001"
+  duration = data["cam_settings"]["duration"]
+  filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
+  ip = data["paths"]["stream"]
+  port = "5001"
 
-    # parse command
-    vid_cmd = " ".join(("raspivid -o - -t", duration))
-    tee_cmd = " ".join(("| tee", filepath))
-    nc_cmd = " ".join(("| nc", ip, port))
+  # parse command
+  vid_cmd = " ".join(("raspivid -o - -t", duration))
+  tee_cmd = " ".join(("| tee", filepath))
+  nc_cmd = " ".join(("| nc", ip, port))
 
-    return {'vid':vid_cmd, 'tee':tee_cmd, 'nc':nc_cmd}
+  return {'vid':vid_cmd, 'tee':tee_cmd, 'nc':nc_cmd}
 
 GPIO.setup(channel, GPIO.IN)
 GPIO.add_event_detect(channel, GPIO.RISING)
@@ -72,6 +72,5 @@ try:
         print 'alive'
         sleep(0.2)
 except KeyboardInterrupt:
-    cam_trigger(channel)
     GPIO.cleanup()
     sys.exit()
