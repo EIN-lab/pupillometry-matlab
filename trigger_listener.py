@@ -13,7 +13,7 @@ except RuntimeError:
 
 # connect data drive
 isMount = os.path.ismount('/home/pi/mnt/finc/')
-if (!ismount):
+if not ismount:
     try:
         p = Popen('mount /home/pi/mnt/finc/')
     except RuntimeError:
