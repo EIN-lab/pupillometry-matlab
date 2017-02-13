@@ -4,7 +4,7 @@ import shlex
 import datetime
 
 from time import sleep
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, call
 
 try:
     import RPi.GPIO as GPIO
@@ -12,10 +12,10 @@ except RuntimeError:
     print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
 
 # connect data drive
-isMount = os.path.ismount('/home/pi/mnt/finc/')
+isMount = os.path.ismount('/home/pi/mnt/finc')
 if not isMount:
     try:
-        p = Popen('mount /home/pi/mnt/finc/')
+        p = call(["mount", "/home/pi/mnt/finc"])
     except RuntimeError:
         print("No internet connection!")
 
