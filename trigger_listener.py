@@ -11,7 +11,13 @@ try:
 except RuntimeError:
     print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
 
-###
+# connect data drive
+isMount = os.path.ismount('/home/pi/mnt/finc/')
+if (!ismount):
+    try:
+        p = Popen('mount /home/pi/mnt/finc/')
+    except RuntimeError:
+        print("No internet connection!")
 
 # Set GPIO mode
 GPIO.setmode(GPIO.BOARD)
