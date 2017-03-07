@@ -43,14 +43,14 @@ def cam_trigger(channel):
     camera.resolution = (width, height)
     camera.framerate = fps
     
-    camera.start_preview()
+    camera.start_preview(fullscreen=False, window = (100, 20, 640, 480))
     
     prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
     duration = int(data["cam_settings"]["duration"])
     filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
     
     camera.start_recording(filepath)
-    camera.sleep(duration/1000)
+    camera.sleep(25)
     
     camera.stop_recording()
     camera.stop_preview()
