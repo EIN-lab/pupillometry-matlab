@@ -22,6 +22,9 @@ if not isMount:
         
 # Create Camera object
 camera = PiCamera()
+camera.rotation = 180
+camera.color_effects = (128,128)
+camera.start_preview()
 
 # Set GPIO mode
 GPIO.setmode(GPIO.BOARD)
@@ -38,12 +41,9 @@ def cam_trigger(channel):
     height = int(data["cam_settings"]["height"])
     fps = int(data["cam_settings"]["fps"])
 
-    camera.rotation = 180
-    camera.color_effects = (128,128)
+    
     camera.resolution = (width, height)
     camera.framerate = fps
-    
-    camera.start_preview()
     
     prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     duration = int(data["cam_settings"]["duration"])
@@ -53,7 +53,6 @@ def cam_trigger(channel):
     sleep(duration)
     
     camera.stop_recording()
-    camera.stop_preview()
     
     #os.chmod(filepath, 0766)
 
@@ -102,5 +101,6 @@ try:
     while True:
         sleep(.2)
 except KeyboardInterrupt:
+    camera.stop_preview()
     GPIO.cleanup()
     sys.exit()
