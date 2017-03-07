@@ -35,7 +35,6 @@ fname = 'params.json'
 
 def cam_trigger(channel):
     print('Trigger detected on channel %s'%channel)
-    camera.stop_preview()
 
     data = read_json(fname)
     width = int(data["cam_settings"]["width"])
@@ -51,10 +50,8 @@ def cam_trigger(channel):
     filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
     
     camera.start_recording(filepath)
-    sleep(duration)
-    
+    sleep(duration-2)
     camera.stop_recording()
-    camera.start_preview()
 
     #os.chmod(filepath, 0766)
 
