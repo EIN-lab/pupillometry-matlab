@@ -1,10 +1,8 @@
 import sys, os
 import json
-import shlex
 import datetime
 
 from time import sleep
-from subprocess import Popen, PIPE, call
 from picamera import PiCamera
 
 try:
@@ -19,7 +17,7 @@ if not isMount:
         p = call(["mount", "/home/pi/mnt/finc"])
     except RuntimeError:
         print("No internet connection!")
-        
+
 # Create Camera object
 camera = PiCamera()
 camera.rotation = 180
@@ -45,16 +43,16 @@ def cam_trigger(channel):
     prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     duration = int(data["cam_settings"]["duration"])
     filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
-    
+
     camera.start_recording(filepath)
-    sleep(duration-2)
+    camera.wait_recording(duration)
     camera.stop_recording()
-   
+
 def read_json(fname):
     # Read params from external .json file
     with open(fname) as data_file:
         data = json.load(data_file)
-        
+
     return data
 
 GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
