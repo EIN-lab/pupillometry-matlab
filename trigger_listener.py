@@ -54,6 +54,8 @@ def cam_trigger(channel):
     
     camera.stop_recording()
     camera.stop_preview()
+    
+    os.chmod(filepath, 0766)
 
     #print(cmd["vid"])
 
