@@ -19,6 +19,9 @@ if not isMount:
         p = call(["mount", "/home/pi/mnt/finc"])
     except RuntimeError:
         print("No internet connection!")
+        
+# Create Camera object
+camera = PiCamera()
 
 # Set GPIO mode
 GPIO.setmode(GPIO.BOARD)
@@ -34,8 +37,6 @@ def cam_trigger(channel):
     width = int(data["cam_settings"]["width"])
     height = int(data["cam_settings"]["height"])
     fps = int(data["cam_settings"]["fps"])
-    
-    camera = PiCamera()
 
     camera.rotation = 180
     camera.color_effects = (128,128)
