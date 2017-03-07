@@ -24,6 +24,7 @@ if not isMount:
 camera = PiCamera()
 camera.rotation = 180
 camera.color_effects = (128,128)
+camera.framerate = 25
 camera.start_preview()
 
 # Set GPIO mode
@@ -37,14 +38,10 @@ def cam_trigger(channel):
     print('Trigger detected on channel %s'%channel)
 
     data = read_json(fname)
-    width = int(data["cam_settings"]["width"])
-    height = int(data["cam_settings"]["height"])
-    fps = int(data["cam_settings"]["fps"])
+    #width = int(data["cam_settings"]["width"])
+    #height = int(data["cam_settings"]["height"])
+    #fps = int(data["cam_settings"]["fps"])
 
-    
-    camera.resolution = (width, height)
-    camera.framerate = fps
-    
     prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     duration = int(data["cam_settings"]["duration"])
     filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
@@ -52,45 +49,13 @@ def cam_trigger(channel):
     camera.start_recording(filepath)
     sleep(duration-2)
     camera.stop_recording()
-
-    #os.chmod(filepath, 0766)
-
-    #print(cmd["vid"])
-
-    #p1 = Popen([cmd['vid']], stdout=PIPE, shell=True, bufsize=0)
-    #p2 = Popen([cmd['tee']], stdin=p1.stdout, stdout=PIPE)
-    #p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
-    #p2.stdout.close()
-    #output = p2.communicate()[0]
-
-    #command_line = "raspivid -o - -t 5000 | tee /home/pi/mnt/finc/_Group/Projects/Astrocyte\ Calcium/Current\ Milestones/GYS1\ knockouts/Awake/Video/`date +%y-%m-%d`_video.h264 | nc 192.168.1.238 5001"
-
-    #args = shlex.split(command_line)
-    #print args
-    # send acquire command with parameters specified in .json
-    #p = subprocess.Popen(args)
-
-    # convert saved file to .mp4
-    
+   
 def read_json(fname):
-  # Read params from external .json file
-  with open(fname) as data_file:
-      data = json.load(data_file)
-  #print(data)
-
-  #prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-
-  #duration = data["cam_settings"]["duration"]
-  #filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
-  #ip = data["paths"]["stream"]
-  #port = "5001"
-
-  # parse command
-  #vid_cmd = " ".join(("raspivid -o - -t", duration))
-  #tee_cmd = " ".join(("| tee", filepath))
-  #nc_cmd = " ".join(("| nc", ip, port))
-
-  return data
+    # Read params from external .json file
+    with open(fname) as data_file:
+        data = json.load(data_file)
+        
+    return data
 
 GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.add_event_detect(channel, GPIO.RISING)
