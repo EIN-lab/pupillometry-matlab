@@ -56,8 +56,8 @@ def read_json(fname):
     return data
 
 GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.add_event_detect(channel, GPIO.RISING)
-GPIO.add_event_callback(channel, cam_trigger)
+GPIO.add_event_detect(channel, GPIO.RISING, callback=cam_trigger, bouncetime=25000)
+#GPIO.add_event_callback(channel, cam_trigger)
 
 try:
     while True:
