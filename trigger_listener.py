@@ -43,7 +43,7 @@ def cam_trigger(channel):
     camera.resolution = (width, height)
     camera.framerate = fps
     
-    camera.start_preview(fullscreen=False, window = (100, 20, 640, 480))
+    camera.start_preview()
     
     prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
     duration = int(data["cam_settings"]["duration"])
@@ -98,8 +98,7 @@ GPIO.add_event_callback(channel, cam_trigger)
 
 try:
     while True:
-        print 'alive'
-        sleep(0.2)
+        sleep(.2)
 except KeyboardInterrupt:
     GPIO.cleanup()
     sys.exit()
