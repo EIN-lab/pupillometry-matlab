@@ -30,14 +30,26 @@ fname = 'params.json'
 def cam_trigger(channel):
     print('Trigger detected on channel %s'%channel)
 
-    cmd = read_json(fname)
+    data = read_json(fname)
     
     camera = PiCamera()
 
     camera.rotation = 180
+    camera.color_effects = (128,128)
+    camera.resolution = (data["cam_settings"]["width"], data["cam_settings"]["height"])
+    camera.framerate = data["cam_settings"]["fps"]
+    
     camera.start_preview()
     
-    fname = ''.join(
+    prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+    duration = data["cam_settings"]["duration"]
+    filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
+    
+    camera.start_recording(filepath)
+    camera.sleep(duration/1000)
+    
+    camera.stop_recording()
+    camera.stop_preview()
 
     #print(cmd["vid"])
 
