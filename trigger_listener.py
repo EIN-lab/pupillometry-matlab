@@ -50,7 +50,7 @@ def cam_trigger(channel):
     filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
     
     camera.start_recording(filepath)
-    sleep(duration/1000)
+    sleep(duration)
     
     camera.stop_recording()
     camera.stop_preview()
