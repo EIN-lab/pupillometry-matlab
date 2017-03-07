@@ -31,13 +31,16 @@ def cam_trigger(channel):
     print('Trigger detected on channel %s'%channel)
 
     data = read_json(fname)
+    width = int(data["cam_settings"]["width"])
+    height = int(data["cam_settings"]["height"])
+    fps = int(data["cam_settings"]["fps"])
     
     camera = PiCamera()
 
     camera.rotation = 180
     camera.color_effects = (128,128)
-    camera.resolution = (data["cam_settings"]["width"], data["cam_settings"]["height"])
-    camera.framerate = data["cam_settings"]["fps"]
+    camera.resolution = (width, height)
+    camera.framerate = fps
     
     camera.start_preview()
     
@@ -72,19 +75,19 @@ def read_json(fname):
   # Read params from external .json file
   with open(fname) as data_file:
       data = json.load(data_file)
-  print(data)
+  #print(data)
 
-  prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+  #prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
-  duration = data["cam_settings"]["duration"]
-  filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
-  ip = data["paths"]["stream"]
-  port = "5001"
+  #duration = data["cam_settings"]["duration"]
+  #filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
+  #ip = data["paths"]["stream"]
+  #port = "5001"
 
   # parse command
-  vid_cmd = " ".join(("raspivid -o - -t", duration))
-  tee_cmd = " ".join(("| tee", filepath))
-  nc_cmd = " ".join(("| nc", ip, port))
+  #vid_cmd = " ".join(("raspivid -o - -t", duration))
+  #tee_cmd = " ".join(("| tee", filepath))
+  #nc_cmd = " ".join(("| nc", ip, port))
 
   return data
 
