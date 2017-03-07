@@ -45,7 +45,7 @@ def cam_trigger(channel):
     
     camera.start_preview()
     
-    prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+    prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     duration = int(data["cam_settings"]["duration"])
     filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
     
