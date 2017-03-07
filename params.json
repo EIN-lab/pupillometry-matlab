@@ -2,12 +2,12 @@
     "cam_settings": {
         "width": "1920",
         "height": "1080",
-        "duration": "5000",
+        "duration": "25000",
         "fps": "30",
         "rotation": "180"
     },
     "paths": {
-        "savepath": "/home/pi/mnt/finc/_Group/Projects/Astrocyte Calcium/Current Milestones/GYS1/Awake/Video/",
+        "savepath": "/home/pi/mnt/finc/Kim/Data/AwakeVideo/17_03_07/",
         "stream": "192.168.1.238",
         "filename": "video.h264"
     },

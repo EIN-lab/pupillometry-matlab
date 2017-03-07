@@ -5,6 +5,7 @@ import datetime
 
 from time import sleep
 from subprocess import Popen, PIPE, call
+from picamera import PiCamera
 
 try:
     import RPi.GPIO as GPIO
@@ -30,15 +31,21 @@ def cam_trigger(channel):
     print('Trigger detected on channel %s'%channel)
 
     cmd = read_json(fname)
+    
+    camera = PiCamera()
 
-    print(cmd["vid"])
+    camera.rotation = 180
+    camera.start_preview()
+    
+    fname = ''.join(
 
-    p1 = Popen([cmd['vid']], stdout=PIPE, shell=True, bufsize=0)
-    p2 = Popen([cmd['tee']], stdin=p1.stdout, stdout=PIPE)
-    p3 = Popen([cmd['nc']], stdin=p2.stdout, stdout=PIPE)
-    p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
-    p2.stdout.close()
-    output = p2.communicate()[0]
+    #print(cmd["vid"])
+
+    #p1 = Popen([cmd['vid']], stdout=PIPE, shell=True, bufsize=0)
+    #p2 = Popen([cmd['tee']], stdin=p1.stdout, stdout=PIPE)
+    #p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
+    #p2.stdout.close()
+    #output = p2.communicate()[0]
 
     #command_line = "raspivid -o - -t 5000 | tee /home/pi/mnt/finc/_Group/Projects/Astrocyte\ Calcium/Current\ Milestones/GYS1\ knockouts/Awake/Video/`date +%y-%m-%d`_video.h264 | nc 192.168.1.238 5001"
 
@@ -67,7 +74,7 @@ def read_json(fname):
   tee_cmd = " ".join(("| tee", filepath))
   nc_cmd = " ".join(("| nc", ip, port))
 
-  return {'vid':vid_cmd, 'tee':tee_cmd, 'nc':nc_cmd}
+  return data
 
 GPIO.setup(channel, GPIO.IN)
 GPIO.add_event_detect(channel, GPIO.RISING)
