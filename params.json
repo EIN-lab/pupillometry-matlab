@@ -2,7 +2,7 @@
     "cam_settings": {
         "width": "1920",
         "height": "1080",
-        "duration": "25000",
+        "duration": "25",
         "fps": "30",
         "rotation": "180"
     },
