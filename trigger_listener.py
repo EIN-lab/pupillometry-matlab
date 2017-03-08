@@ -23,7 +23,7 @@ if not isMount:
 GPIO.setmode(GPIO.BOARD)
 
 # Predefined values
-channel = 7
+channel = 11
 fname = 'params.json'
 
 def cam_trigger(channel):
