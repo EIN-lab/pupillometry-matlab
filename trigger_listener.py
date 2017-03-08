@@ -50,8 +50,7 @@ def read_json(fname):
     return data
 
 GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.add_event_detect(channel, GPIO.RISING, callback=cam_trigger, bouncetime=25000)
-#GPIO.add_event_callback(channel, cam_trigger)
+sleep(.2)
 
 # Create Camera object
 camera = PiCamera()
@@ -59,6 +58,9 @@ camera.rotation = 180
 camera.color_effects = (128,128)
 camera.framerate = 25
 camera.start_preview(alpha=128)
+
+GPIO.add_event_detect(channel, GPIO.RISING, callback=cam_trigger, bouncetime=25000)
+#GPIO.add_event_callback(channel, cam_trigger)
 
 try:
     while True:
