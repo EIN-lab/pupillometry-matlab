@@ -50,7 +50,6 @@ def read_json(fname):
     return data
 
 GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-sleep(.2)
 
 # Create Camera object
 camera = PiCamera()
@@ -60,11 +59,6 @@ camera.framerate = 25
 camera.start_preview(alpha=128)
 
 GPIO.add_event_detect(channel, GPIO.RISING, callback=cam_trigger)
-
-# print each detected trigger for debugging
-if GPIO.event_detected(channel):
-    timestr = datetime.datetime.now().strftime("%H-%M-%S") + ' Triggered!'
-    print(timestr)
 
 try:
     while True:
