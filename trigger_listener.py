@@ -59,8 +59,12 @@ camera.color_effects = (128,128)
 camera.framerate = 25
 camera.start_preview(alpha=128)
 
-GPIO.add_event_detect(channel, GPIO.RISING, callback=cam_trigger, bouncetime=25000)
-#GPIO.add_event_callback(channel, cam_trigger)
+GPIO.add_event_detect(channel, GPIO.RISING, callback=cam_trigger)
+
+# print each detected trigger for debugging
+if GPIO.event_detected(channel):
+    timestr = datetime.datetime.now().strftime("%H-%M-%S") + ' Triggered!'
+    print(timestr)
 
 try:
     while True:
