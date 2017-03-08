@@ -19,13 +19,6 @@ if not isMount:
     except RuntimeError:
         print("No internet connection!")
 
-# Create Camera object
-camera = PiCamera()
-camera.rotation = 180
-camera.color_effects = (128,128)
-camera.framerate = 25
-camera.start_preview()
-
 # Set GPIO mode
 GPIO.setmode(GPIO.BOARD)
 
@@ -59,6 +52,13 @@ def read_json(fname):
 GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.add_event_detect(channel, GPIO.RISING, callback=cam_trigger, bouncetime=25000)
 #GPIO.add_event_callback(channel, cam_trigger)
+
+# Create Camera object
+camera = PiCamera()
+camera.rotation = 180
+camera.color_effects = (128,128)
+camera.framerate = 25
+camera.start_preview(alpha=128)
 
 try:
     while True:
