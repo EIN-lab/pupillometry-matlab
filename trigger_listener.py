@@ -61,8 +61,12 @@ camera.color_effects = (128,128)
 camera.framerate = 25
 camera.start_preview(alpha=128)
 
-GPIO.add_event_detect(channel, GPIO.RISING, callback=cam_trigger,bouncetime=2000)
+#GPIO.add_event_detect(channel, GPIO.RISING, callback=cam_trigger,bouncetime=2000)
 
+while True:
+    ch_trig = GPIO.wait_for_edge(channel, GPIO.RISING,timeout=1000)
+    if ch_trig is not None:
+        cam_trigger(ch_trig)
 try:
     while True:
         sleep(.2)
