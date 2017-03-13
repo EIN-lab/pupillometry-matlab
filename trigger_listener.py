@@ -27,7 +27,7 @@ channel = 11
 fname = 'params.json'
 
 def cam_trigger(channel):
-    print('Trigger detected on channel %s'%channel)
+    print('Trigger detected on channel %s\n'%channel)
 
     data = read_json(fname)
     #width = int(data["cam_settings"]["width"])
@@ -38,9 +38,12 @@ def cam_trigger(channel):
     duration = int(data["cam_settings"]["duration"])
     filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
 
+    print('Start recording\n')
     camera.start_recording(filepath)
     camera.wait_recording(duration)
     camera.stop_recording()
+    
+    print('Recording ended\n')
 
 def read_json(fname):
     # Read params from external .json file
@@ -58,7 +61,7 @@ camera.color_effects = (128,128)
 camera.framerate = 25
 camera.start_preview(alpha=128)
 
-GPIO.add_event_detect(channel, GPIO.RISING, callback=cam_trigger)
+GPIO.add_event_detect(channel, GPIO.RISING, callback=cam_trigger,bouncetime=2000)
 
 try:
     while True:
