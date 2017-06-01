@@ -32,15 +32,16 @@ function R = pupilMeasurement(videoPath,fitMethod,frameInterval,pupilSize,thresV
 %               is 1, all fitted frames will also be saved in current
 %               fold. The default value of doPlot is 0.
 %
-% Example 1: R=pupilMeasurement([],1,5,10,20,1);
-%			  []- video will be selected after runing the algorithm;
-%			  1 - frames will be processd by circular fit;
-%			  5 - frame 1,6,11,16.......will be processed;
-%  		      10 - the mannually decided smallest diameter of the pupil is 10 pixels;
-%			  20 - regionGrowing threshould is 20;
-%			  1 - save all the processed frames with fitted circle ellipse shown on;
-%
-% 			  
+% Example1: R=pupilMeasurement([],1,5,10,20,1);
+%   Meaning of the input arguments:
+%      []- video will be selected after runing the algorithm;
+%      1 - frames will be processd by circular fit;
+%	   5 - frame 1,6,11,16.......will be processed;
+%  	   10 - the mannually decided smallest diameter of the pupil is 10 pixels;
+%	   20 - regionGrowing threshould is 20;
+%	   1 - save all the processed frames with fitted circle ellipse shown on;
+
+
 if ~exist('videoPath') || isempty(videoPath)
     videoPath = uigetfile;
 else
