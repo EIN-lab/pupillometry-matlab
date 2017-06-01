@@ -31,9 +31,20 @@ function R = pupilMeasurement(videoPath,fitMethod,frameInterval,pupilSize,thresV
 %       doPlot: If doPlot is 0, only save the radii in a txt file.If doPlot
 %               is 1, all fitted frames will also be saved in current
 %               fold. The default value of doPlot is 0.
-
+%
+% Example 1: R=pupilMeasurement([],1,5,10,20,1);
+%			  []- video will be selected after runing the algorithm;
+%			  1 - frames will be processd by circular fit;
+%			  5 - frame 1,6,11,16.......will be processed;
+%  		      10 - the mannually decided smallest diameter of the pupil is 10 pixels;
+%			  20 - regionGrowing threshould is 20;
+%			  1 - save all the processed frames with fitted circle ellipse shown on;
+%
+% 			  
 if ~exist('videoPath') || isempty(videoPath)
     videoPath = uigetfile;
+else
+	videoPath = videoPath;
 end
 
 if fitMethod ~= 1 && fitMethod ~= 2
@@ -69,7 +80,8 @@ else
     F=read(v,100);
     F=imresize(medfilt2(rgb2gray(F)),2);
 end
-figure,imshow(F);
+figure,imshow(F),hold on;
+title('Please select one seed point inside the pupil')
 s=round(ginput(1));
 s=[s(2),s(1),1];
 close;
