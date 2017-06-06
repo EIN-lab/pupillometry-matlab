@@ -1,9 +1,9 @@
-function R=circularFit(v,s,frameInterval,pupilSize,thresVal,doPlot)
+function R=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,doPlot)
 % circular fit algorithm for the input video
 
 n=0;
 if pupilSize > 20
-    for i=1:frameInterval:v.NumberofFrames
+    for i=startFrame:frameInterval:v.NumberofFrames
         F=read(v,i);
         F=rgb2gray(F);
         S=size(F);
@@ -34,12 +34,12 @@ if pupilSize > 20
         % matrix R (n*1) - radius of the pupil
         n=n+1;
         if length(r)==2
-            if r(1)>=r(2)
-                O(n,:)=o(1,:);
-                R(n)=r(1);
-            else
+            if abs(R(n)-r(1))>abs(R(n)-r(2))
                 O(n,:)=o(2,:);
                 R(n)=r(2);
+            else
+                O(n,:)=o(1,:);
+                R(n)=r(1);
             end
         else
             O(n,:)=o(1,:);
@@ -48,7 +48,7 @@ if pupilSize > 20
     end
 
 else
-    for i=1:frameInterval:v.NumberofFrames
+    for i=startFrame:frameInterval:v.NumberofFrames
         F=read(v,i);
         F=imresize(medfilt2(rgb2gray(F)),2);
         S=size(F);
