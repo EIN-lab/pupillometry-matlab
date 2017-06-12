@@ -59,6 +59,7 @@ camera = PiCamera()
 camera.rotation = 180
 camera.color_effects = (128,128)
 camera.framerate = 25
+camera.zoom = (.4, .4, .2, .2)
 camera.start_preview(alpha=128)
 
 #GPIO.add_event_detect(channel, GPIO.RISING, callback=cam_trigger,bouncetime=2000)
