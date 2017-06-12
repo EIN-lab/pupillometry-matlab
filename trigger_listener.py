@@ -57,15 +57,16 @@ camera = PiCamera()
 camera.rotation = 180
 camera.color_effects = (128,128)
 camera.framerate = 25
+camera.zoom = (.4, .4, .2, .2)
 camera.start_preview(alpha=192) # remove alpha=192 to remove transparency
 sleep(2) # Camera warm-up time
 
-while True:
-    ch_trig = GPIO.wait_for_edge(channel, GPIO.RISING, timeout=10)
-    if ch_trig is not None:
-        cam_trigger(ch_trig)
+#while True:
+#    ch_trig = GPIO.wait_for_edge(channel, GPIO.RISING, timeout=10)
+#    if ch_trig is not None:
+#        cam_trigger(ch_trig)
 
-    spinner = itertools.cycle(['-', '/', '|', '\\']) # set up spinning "wheel"
+spinner = itertools.cycle(['-', '/', '|', '\\']) # set up spinning "wheel"
 
 try:
     while True:
