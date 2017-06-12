@@ -1,5 +1,9 @@
-function R=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,doPlot)
+function R=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,savePath,doPlot)
 % circular+elliptical fit algorithm for the input video
+
+[vpath,vname] = fileparts(v.Name);
+mkdir(savePath,vname);
+folderPath=fullfile(savePath,vname);
 
 n=0;
 if pupilSize > 20
@@ -54,7 +58,8 @@ if pupilSize > 20
                 str=sprintf('frame %d, a=%f, b=%f',i,a,b);
                 title(str);
                 filename=sprintf('frame %d',i);
-                saveas(gcf,filename,'jpg');
+                Iname=fullfile(folderPath,filename);
+                saveas(gcf,Iname,'jpg');
                 close;
             end
             
@@ -69,7 +74,8 @@ if pupilSize > 20
                 str=sprintf('frame %d, r=%f',i,r);
                 title(str);
                 filename=sprintf('frame %d',i);
-                saveas(gcf,filename,'jpg');
+                Iname=fullfile(folderPath,filename);
+                saveas(gcf,Iname,'jpg');
                 close;
             end
         end
@@ -126,7 +132,8 @@ else
                 str=sprintf('frame %d, a=%f, b=%f',i,a,b);
                 title(str);
                 filename=sprintf('frame %d',i);
-                saveas(gcf,filename,'jpg');
+                Iname=fullfile(folderPath,filename);
+                saveas(gcf,Iname,'jpg');
                 close;
             end
         else
@@ -139,7 +146,8 @@ else
                 str=sprintf('frame %d, r=%f',i,r);
                 title(str);
                 filename=sprintf('frame %d',i);
-                saveas(gcf,filename,'jpg');
+                Iname=fullfile(folderPath,filename);
+                saveas(gcf,Iname,'jpg');
                 close;
             end
         end
@@ -147,15 +155,18 @@ else
 end
 
 % save the matrix of Radii as a text file
-dlmwrite('Pupil Radii- fitted by ellipse.txt',R')
-close all
+Tname = fullfile(folderPath,'Pupil Radii- fitted by ellipse and circle.txt');
+dlmwrite(Tname,R)
+
 % plot the variation of the pupil radius and save it as a jpg figure.
 if doPlot
+    close all
     plot(R), hold on;
-    title('Variation of Pupil Radius - fitted by ellipse')
-    xlabel('frame number')
-    ylabel('Pupil Radius/pixel')
-    saveas(gcf,'Variation of Pupil Radius - fitted by ellipse','jpg');
+    title('Variation of Pupil Radius - fitted by ellipse');
+    xlabel('frame number');
+    ylabel('Pupil Radius/pixel');
+    Pname = fullfile(folderPath,'Variation of Pupil Radius - fitted by circle and ellipse' );
+    saveas(gcf,Pname,'jpg');
 end
 
 end

@@ -1,107 +1,158 @@
-function R = pupilMeasurement(videoPath,fitMethod,startFrame,frameInterval,pupilSize,thresVal,doPlot)
+function R = pupilMeasurement(fitMethod,doPlot,thresVal,frameInterval,videoPath,savePath,startFrame,pupilSize)
 % Main Algorithm
 % Pupil Detection and Measurement Algorithm for Videos
-% 
-% R = pupilMeasurement(videoPath,fitMethod,frameInterval,pupilSize,thresVal,doPlot)
+%
+% R = pupilMeasurement(fitMethod,doPlot,thresVal,frameInterval,videoPath,savePath,startFrame,pupilSize)
+%
+% Syntax:
+%   R = pupilMeasurement;
+%   R = pupilMeasurement(fitMethod,doPlot);
+%   R = pupilMeasurement([],[],thresVal);
+%   R = pupilMeasurement(fitMethod,[],[],frameInterval);
+%
 % Inputs:
-%       videoPath: Path of the video needed to be processed 
-%                  For example,the video path is
-%                  "D:\matlab\2017-05-30-trial3_cropped.mp4",then the input
-%                  value should be defiend as videoPath='D:\matlab\pupil
-%                  dilation\2017-05-30-trial3_cropped'
+%       fitMethod: input 1 - circular fit(if pupils are almost circular);
+%                  input 2 - circular+elliptical fit.
+%                  Default value - 2
 %
-%                  Or, if videoPath is given as [],then the user can select
-%                  the video path after running the algorithm.
-%
-%
-%       fitMethod: input 1 for circular fit(if pupils are almost circular);
-%                  input 2 for circular+elliptical fit.
-%
-%       startFrame: the number of the first frame to be processed. In some
-%                   cases, the first a few frames of the video would be
-%                   totally black, the input of startFrame should be the
-%                   number of frame with pupils shown.
-%
-%       frameInterval: the interval between each processed frame, it should
-%                      be an integer.
-%
-%       pupilSize: the diameter of pupil in pixel, should be measured
-%                manually in a frame with small pupil size. When the pupil
-%                diameter is 20 pixels or less, the frames will be defined
-%                as small-size images and resized.
+%       doPlot: input 0 - only save the radii in a txt file.
+%               input 1 - all fitted frames will also be saved
+%               Default value - 0
 %
 %       thresVal: threshould for the region-growing segmentation, which
 %                 stands for the difference of the gray values between the
 %                 pupil and the iris of the eye.Values from 15 to 30 would
 %                 be reasonable for normal cases.
-% 
-%       doPlot: If doPlot is 0, only save the radii in a txt file.If doPlot
-%               is 1, all fitted frames will also be saved in current
-%               fold. The default value of doPlot is 0.
+%                 Default value - 18
 %
-% Output: R -- a n*1 matrix which contain the radii of the pupil in each
-%         processd frame, and these radii will also be saved as a txt file
-%         in current folder.
+%       frameInterval: the interval between each processed frame, it must
+%                      be an integer.
+%                      Default value - 5
+%
+%       videoPath: should be given as [],then the user needs to select one
+%                  or more video after running the algorithm.
+%
+%       savePath: should be given as [], then the user needs to select (or
+%                 create) a folder, which will be used to save the images
+%                 and text file.
+%
+%       startFrame: the number of the first frame to be processed. 
+%                   Default value - the number of the first frame whose
+%                   maximal gray value is higher than 100
+%
+%       pupilSize: the diameter of pupil in the startFrame in pixel. User
+%                  can draw a line cross the pupil on the displayed
+%                  image,then the diameter will be measured automatically.
+%                  If the diameter is 20 pixels or less, the frames will be
+%                  defined as small-size images and resized.
+%
+% Output: R -- a 1*n matrix or a 1*h cell which contain the radii of the
+%              pupil in each processd frame, and these radii will also be
+%              saved as a txt file
 %
 %         If doPlot=1, all processed frames will also be saved in current
-%         fold with fitted ellipse or circle shown on . 
-%         
-%
-%
-% Example1: R=pupilMeasurement([],1,7,5,10,20,1);
-%   Meaning of the input arguments:
-%      []- video will be selected after runing the algorithm;
-%      1 - frames will be processd by circular fit;
-%      7 - the number of frame in the video you want to start to process
-%	   5 - frame 1,6,11,16.......will be processed;
-%  	   10 - the mannually decided smallest diameter of the pupil is 10 pixels;
-%	   20 - regionGrowing threshould is 20; 
-%      1 - save all the processed frames in current folderwith fitted
-%      circle or ellipse shown on;
+%         fold with fitted ellipse or circle shown on .
 
 
+%=========================================================================
+%check all the input arguments
+
+if nargin > 8
+    error('Wrong number of input arguments!')
+end
+
+%select videos%
 if ~exist('videoPath') || isempty(videoPath)
-    videoPath = uigetfile;
+    [vname,vpath] = uigetfile({'*.mp4;*.m4v;*.avi;*.mov;*.mj2;*.mpg;*.wmv;*.asf;*.asx'},...
+        'Please select the video file(s)','multiselect','on');
+end
+NumberofVideos = numel(cellstr(vname));
+
+%check the fitMethod
+if ~exist('fitMethod') || isempty(fitMethod)
+    fitMethod = 2; % default input of fitMethod is circular+elliptical fit;
 else
-	videoPath = videoPath;
+    fitMethod = fitMethod;
 end
 
-if fitMethod ~= 1 && fitMethod ~= 2
-    error('Wrong input of fitMethod! Input value should be 1(for circular fit) or 2(for circular + elliptical fit)')
-end
+%check the start frame
 
 if ~exist('startFrame')|| isempty(startFrame)
-    error('please input the startFrame! It should be an integer number of the frame you want to start to process.')
+    if NumberofVideos == 1
+        videoPath = fullfile(vpath,vname);
+    else
+        videoPath = fullfile(vpath,vname{1});
+    end
+    v=VideoReader(videoPath);
+    maxGrayLevel=0;
+    for i=1:v.NumberOfFrames;
+        F=rgb2gray(read(v,i));
+        maxGrayLevel = max(max(F(:)));
+        if maxGrayLevel > 100
+            startFrame = i;
+            break
+        end
+    end
+elseif round(startFrame) ~= startFrame
+    error('Wrong input of startFrame! It should be an integer!')
+    % When there is no input for startFrame, the algorithm will select the
+    % first frame of the video,whose maximal gray value is higher than 100, as
+    % the startFrame.
+else
+    startFrame = startFrame
 end
 
-if round(frameInterval) ~= frameInterval
+% check the frame interval
+if ~exist('frameInterval')|| isempty(frameInterval)
+    frameInterval = 5;  % default value of frameInterval is 5;
+elseif round(frameInterval) ~= frameInterval
     error('Wrong input of frameInterval! It should be an integer!')
+else
+    frameInterval = frameInterval;
 end
 
+%check the pupilSize
 if ~exist('pupilSize')|| isempty(pupilSize)
-    error('please input the pupilSize!')
+    figure,imshow(F);
+    hold on;
+    title('Please draw the longest diameter across the pupil');
+    h=imline;
+    pos=getPosition(h);
+    h = imdistline(gca,pos(:,1),pos(:,2));
+    pupilSize=getDistance(h);
+    close
+else
+    pupilSize = pupilSize;
 end
 
+% check the threshould value for the region growing segmentation
 if ~exist('thresVal')|| isempty(thresVal)
-    error('please input the thresVal for regionGrowing!')
+    thresVal=18;
+else
+    thresVal=thresVal
 end
 
+% select the folder to save all the processed images and radii text
+if ~exist('savePath') ||isempty(savePath)
+     savePath=uigetdir('Please select (or create) a folder you want to save your images and radii text');
+else
+    savePath=savePath;
+end
+
+% check if the user want to save all the images
 if ~exist('doPlot') || isempty(doPlot)
     doPlot = 0;
 else
     doPlot=doPlot;
 end
 
-%input the video
-v=VideoReader(videoPath);
+%=========================================================================
+%start to process the videos
+
 %check the size of eye and select the seed point s for regionGrowing
 %segmentation
-if pupilSize > 20
-    F=read(v,100);
-    F=medfilt2(rgb2gray(F));
-else 
-    F=read(v,100);
-    F=imresize(medfilt2(rgb2gray(F)),2);
+if pupilSize <= 20
+    F=imresize(medfilt2(F),2);
 end
 figure,imshow(F),hold on;
 title('Please select one seed point inside the pupil')
@@ -111,12 +162,37 @@ close;
 
 
 % Check the fit method and fit the pupil images
-if fitMethod == 1   %circular fit only
-    R=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,doPlot);
-elseif fitMethod == 2 
-    R=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,doPlot);    
+if NumberofVideos == 1   % only one video needed to be processed
+    if fitMethod == 1   %circular fit only
+        FitMethod = 'Circular Fit';
+        R=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,savePath,doPlot);
+    elseif fitMethod == 2
+        FitMethod = 'Circular + Elliptical Fit';
+        R=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,savePath,doPlot);
+    end
+else   % more than 1 video needed to be processed
+    R = cell(1,NumberofVideos)
+    if fitMethod == 1   %circular fit only
+        FitMethod = 'Circular Fit';
+        for j=1:NumberofVideos
+            videoPath = fullfile(vpath,vname{j});
+            v=VideoReader(videoPath);
+            R{j}=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,savePath,doPlot);
+        end
+    elseif fitMethod == 2
+        FitMethod = 'Circular + Elliptical Fit';
+        for j=1:NumberofVideos
+            videoPath = fullfile(vpath,vname{j});
+            v=VideoReader(videoPath);
+            R{j}=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,savePath,doPlot);
+        end
+    end
 end
 
-end 
-
+% disp(['pupilMeasurement Ending ']);
+% disp(['Number of Processed Videos :' num2str(NumberofVideos)]);
+% % disp(['Frame Interval : 'num2str(frameInterval)])
+% disp(['Fit Method :' FitMethod]);
+% % disp(['Threshold of the Region Growing Segmentation :'num2str(thresVal)]);
+    
     

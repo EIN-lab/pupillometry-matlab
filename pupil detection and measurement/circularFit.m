@@ -1,5 +1,10 @@
-function R=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,doPlot)
+function R=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,savePath,doPlot)
 % circular fit algorithm for the input video
+
+
+[vpath,vname] = fileparts(v.Name);
+mkdir(savePath,vname);
+folderPath=fullfile(savePath,vname);
 
 n=0;
 if pupilSize > 20
@@ -26,6 +31,7 @@ if pupilSize > 20
             str=sprintf('frame %d, r=%f',i,r);
             title(str);
             filename=sprintf('frame %d',i);
+            Iname=fullfile(folderPath,filename);
             saveas(gcf,filename,'jpg');
             close;
         end
@@ -71,7 +77,8 @@ else
             str=sprintf('frame %d, r=%f',i,r);
             title(str);
             filename=sprintf('frame %d',i);
-            saveas(gcf,filename,'jpg');
+            Iname=fullfile(folderPath,filename);
+            saveas(gcf,Iname,'jpg');
             close;
         end
         
@@ -93,7 +100,9 @@ else
     end
 end
 % save the matrix of Radii as a text file
-dlmwrite('Pupil Radii- fitted by circle.txt',R')
+Tname = fullfile(folderPath,'Pupil Radii- fitted by circle.txt');
+dlmwrite(Tname,R);
+
 % plot the variation of the pupil radius and save it as a jpg figure.
 if doPlot
     close all
@@ -101,7 +110,8 @@ if doPlot
     title('Variation of Pupil Radius - fitted by circle')
     xlabel('frame number')
     ylabel('Pupil Radius/pixel')
-    saveas(gcf,'Variation of Pupil Radius - fitted by circle','jpg');
+    Pname = fullfile(folderPath,'Variation of Pupil Radius - fitted by circle' );
+    saveas(gcf,Pname,'jpg');
 end
 
 end
