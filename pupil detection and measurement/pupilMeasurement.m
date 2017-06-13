@@ -195,22 +195,23 @@ if NumberofVideos == 1   % only one video needed to be processed
         R=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
     end
 else   % more than 1 video needed to be processed
-    R = cell(1,NumberofVideos)
+    Rcell = cell(1,NumberofVideos);
     if fitMethod == 1   %circular fit only
         FitMethod = 'Circular Fit';
         for j=1:NumberofVideos
             videoPath = fullfile(vpath,vname{j});
             v=VideoReader(videoPath);
-            R{j}=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
+            Rcell{j}=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
         end
     elseif fitMethod == 2
         FitMethod = 'Circular + Elliptical Fit';
         for j=1:NumberofVideos
             videoPath = fullfile(vpath,vname{j});
             v=VideoReader(videoPath);
-            R{j}=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
+            Rcell{j}=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
         end
     end
+    R=Rcell;
 end
 
 % disp(['pupilMeasurement Ending ']);
