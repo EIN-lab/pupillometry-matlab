@@ -1,6 +1,6 @@
 {
     "cam_settings": {
-        "duration": "30",
+        "duration": "30"
     },
     "paths": {
         "savepath": "/home/pi/mnt/finc/_Group/Projects/Astrocyte Calcium/Current Milestones/GYS1 knockouts/Awake/Video/WT16.12A/",
