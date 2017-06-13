@@ -124,10 +124,10 @@ end
 % initial pixel value
 regVal = double(cIM(initPos(1), initPos(2), initPos(3)));
 
-% text output with initial parameters
-disp(['RegionGrowing Opening: Initial position (' num2str(initPos(1))...
-      '|' num2str(initPos(2)) '|' num2str(initPos(3)) ') with '...
-      num2str(regVal) ' as initial pixel value!'])
+% % text output with initial parameters
+% disp(['RegionGrowing Opening: Initial position (' num2str(initPos(1))...
+%       '|' num2str(initPos(2)) '|' num2str(initPos(3)) ') with '...
+%       num2str(regVal) ' as initial pixel value!'])
 
 % preallocate array
 J = false(nRow, nCol, nSli);
@@ -214,7 +214,7 @@ for cSli = 1:nSli
     end
 end
 
-% text output with final number of vertices
-disp(['RegionGrowing Ending: Found ' num2str(length(find(J)))...
-      ' pixels within the threshold range (' num2str(size(P, 1))...
-      ' polygon vertices)!'])
+% % text output with final number of vertices
+% disp(['RegionGrowing Ending: Found ' num2str(length(find(J)))...
+%       ' pixels within the threshold range (' num2str(size(P, 1))...
+%       ' polygon vertices)!'])

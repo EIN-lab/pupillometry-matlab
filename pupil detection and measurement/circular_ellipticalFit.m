@@ -1,12 +1,17 @@
-function R=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,savePath,doPlot)
+function R=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot)
 % circular+elliptical fit algorithm for the input video
 
 [vpath,vname] = fileparts(v.Name);
-mkdir(savePath,vname);
-folderPath=fullfile(savePath,vname);
+mkdir(fileSavePath,vname);
+folderPath=fullfile(fileSavePath,vname);
 
 n=0;
-if pupilSize > 20
+if pupilSize > 20   % no need to resize the frames
+    rmin = floor(pupilSize*0.4);
+    if rmin <10
+        rmin = 10;
+    end
+    rmax = rmin*3;
     for i=startFrame:frameInterval:v.NumberofFrames
         F=read(v,i);
         F=medfilt2(rgb2gray(F));
@@ -22,15 +27,18 @@ if pupilSize > 20
         k=convhull(BX,BY);
         FI = poly2mask(BX(k), BY(k),S(1) ,S(2)); %filled binary image
         % find the origin and radius of the pupil
-        [o,r]=imfindcircles(FI,[10,50],'ObjectPolarity','bright');
+        [o,r]=imfindcircles(FI,[rmin,rmax],'ObjectPolarity','bright');
+        if isempty(r)
+            [o,r]=imfindcircles(FI,[rmax,rmax*2],'ObjectPolarity','bright');
+        end
         n=n+1;
         % if there are more than 1 fitted circle, use elliptical fit, or
         % there is only one fitted circle, but its radius has big
-        % difference from the radius in the former frame,
+        % difference(0.2*rmin) from the radius in the former frame,
         % use elliptical fit
-        if (length(r)>1) ||...
-                (length(r)==1 && n==1 && abs(r-pupilSize/2)>2.5) ||...
-                (length(r)==1 && n>1 && abs(r-R(n-1))>2.5)
+        if (length(r)>1) || (length(r) == 0) ||...
+                (length(r)==1 && n==1 && abs(r-rmin)>(rmin*0.2)) ||...
+                (length(r)==1 && n>1 && abs(r-R(n-1))>(rmin*0.2))
             
             p=regionprops(FI,'Centroid','MajorAxisLength','MinorAxisLength','Orientation','PixelList');
             PixList = p.PixelList;
@@ -40,7 +48,7 @@ if pupilSize > 20
             b = p.MinorAxisLength/2;
             angle = p.Orientation;
             steps = 50;
-            R(n)=r(1);
+            R(n)=a;
             % show the frame with fitted ellipse on it and save the image into current
             % folder
             if doPlot
@@ -80,7 +88,10 @@ if pupilSize > 20
             end
         end
     end
-else
+    
+else % size of the frame need to be doubled
+    rmin = 10;
+    rmax = rmin*3;
     for i=startFrame:frameInterval:v.NumberofFrames
         F=read(v,i);
         F=imresize(medfilt2(rgb2gray(F)),2);
@@ -96,13 +107,16 @@ else
         k=convhull(BX,BY);
         FI = poly2mask(BX(k), BY(k),S(1) ,S(2)); %filled binary image
         % find the origin and radius of the pupil
-        [o,r]=imfindcircles(FI,[10,50],'ObjectPolarity','bright');
+        [o,r]=imfindcircles(FI,[rmin,rmax],'ObjectPolarity','bright');
+        if isempty(r)
+            [o,r]=imfindcircles(FI,[rmax,rmax*2],'ObjectPolarity','bright');
+        end
         n=n+1;
         % if there are more than 1 fitted circle, use elliptical fit, or
         % there is only one fitted circle, but its radius has big
         % difference (2.5) from the radius in the former frame,
         % use elliptical fit
-        if (length(r)>1) ||...
+        if (length(r)>1) ||(length(r) == 0)||...
                 (length(r)==1 && n==1 && abs(r-pupilSize/2)>2.5) ||...
                 (length(r)==1 && n>1 && abs(r-R(n-1))>2.5)
            
@@ -114,7 +128,7 @@ else
             b = p.MinorAxisLength/2;
             angle = p.Orientation;
             steps = 50;
-            R(n)=r(1);
+            R(n)=a;
             % show the frame with fitted ellipse on it and save the image into current
             % folder
             if doPlot

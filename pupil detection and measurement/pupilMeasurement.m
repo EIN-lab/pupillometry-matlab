@@ -1,22 +1,21 @@
-function R = pupilMeasurement(fitMethod,doPlot,thresVal,frameInterval,videoPath,fileSavePath,startFrame,pupilSize)
+function R = pupilMeasurement(varargin)
 % Main Algorithm
 % Pupil Detection and Measurement Algorithm for Videos
 %
-% R = pupilMeasurement(fitMethod,doPlot,thresVal,frameInterval,videoPath,fileSavePath,startFrame,pupilSize)
+% R =pupilMeasurement(fitMethod,doPlot,thresVal,frameInterval,videoPath,fileSavePath,startFrame,pupilSize)
 %
 % Syntax:
 %   R = pupilMeasurement;
-%   R = pupilMeasurement(fitMethod,doPlot);
-%   R = pupilMeasurement([],[],thresVal);
-%   R = pupilMeasurement(fitMethod,[],[],frameInterval);
+%   R = pupilMeasurement('fitMethod',1,'frameInterval',50);
+%   R = pupilMeasurement('doPlot',true,'thresVal',25);
 %
 % Inputs:
 %       fitMethod: input 1 - circular fit(if pupils are almost circular);
 %                  input 2 - circular+elliptical fit.
 %                  Default value - 2
 %
-%       doPlot: input 0 - only save the radii in a txt file.
-%               input 1 - all fitted frames will also be saved
+%       doPlot: input false - only save the radii in a txt file.
+%               input true - all fitted frames will also be saved
 %               Default value - 0
 %
 %       thresVal: threshould for the region-growing segmentation, which
@@ -56,28 +55,44 @@ function R = pupilMeasurement(fitMethod,doPlot,thresVal,frameInterval,videoPath,
 
 %=========================================================================
 %check all the input arguments
+close all
 
 if nargin > 8
     error('Wrong number of input arguments!')
 end
 
+pNames = {'fitMethod';'doPlot';'thresVal';'frameInterval';'videoPath';...
+            'fileSavePath';'startFrame';'pupilSize'};
+pValues = {2;false;18;5;[];[];[];[]};
+dflts = cell2struct(pValues, pNames);
+% Parse function input arguments
+params = parsepropval2(dflts, varargin{:});
+
+fitMethod = params.fitMethod;
+doPlot = params.doPlot;
+thresVal = params.thresVal;
+frameInterval = params.frameInterval;
+videoPath = params.videoPath;
+fileSavePath = params.fileSavePath;
+startFrame = params.startFrame;
+pupilSize = params.pupilSize;
+
 %select videos%
-if ~exist('videoPath') || isempty(videoPath)
+if isempty(videoPath)
     [vname,vpath] = uigetfile({'*.mp4;*.m4v;*.avi;*.mov;*.mj2;*.mpg;*.wmv;*.asf;*.asx'},...
         'Please select the video file(s)','multiselect','on');
 end
 NumberofVideos = numel(cellstr(vname));
 
-%check the fitMethod
-if ~exist('fitMethod') || isempty(fitMethod)
-    fitMethod = 2; % default input of fitMethod is circular+elliptical fit;
-else
-    fitMethod = fitMethod;
-end
+% %check the fitMethod
+% if ~exist('fitMethod') || isempty(fitMethod)
+%     fitMethod = 2; % default input of fitMethod is circular+elliptical fit;
+% else
+%     fitMethod = fitMethod;
+% end
 
 %check the start frame
-
-if ~exist('startFrame')|| isempty(startFrame)
+if isempty(startFrame)
     if NumberofVideos == 1
         videoPath = fullfile(vpath,vname);
     else
@@ -88,7 +103,7 @@ if ~exist('startFrame')|| isempty(startFrame)
     for i=1:v.NumberOfFrames;
         F=rgb2gray(read(v,i));
         maxGrayLevel = max(max(F(:)));
-        if maxGrayLevel > 100
+        if maxGrayLevel > 200
             startFrame = i;
             break
         end
@@ -102,17 +117,17 @@ else
     startFrame = startFrame
 end
 
-% check the frame interval
-if ~exist('frameInterval')|| isempty(frameInterval)
-    frameInterval = 5;  % default value of frameInterval is 5;
-elseif round(frameInterval) ~= frameInterval
-    error('Wrong input of frameInterval! It should be an integer!')
-else
-    frameInterval = frameInterval;
-end
+% % check the frame interval
+% if isempty(frameInterval)
+%     frameInterval = 5;  % default value of frameInterval is 5;
+% elseif round(frameInterval) ~= frameInterval
+%     error('Wrong input of frameInterval! It should be an integer!')
+% else
+%     frameInterval = frameInterval;
+% end
 
 %check the pupilSize
-if ~exist('pupilSize')|| isempty(pupilSize)
+if isempty(pupilSize)
     figure,imshow(F);
     hold on;
     title('Please draw the longest diameter across the pupil');
@@ -125,26 +140,26 @@ else
     pupilSize = pupilSize;
 end
 
-% check the threshould value for the region growing segmentation
-if ~exist('thresVal')|| isempty(thresVal)
-    thresVal=18;
-else
-    thresVal=thresVal;
-end
+% % check the threshould value for the region growing segmentation
+% if ~exist('thresVal')|| isempty(thresVal)
+%     thresVal=18;
+% else
+%     thresVal=thresVal;
+% end
 
 % select the folder to save all the processed images and radii text
-if ~exist('fileSavePath') || isempty(fileSavePath)
-     fileSavePath=uigetdir('Please select (or create) a folder you want to save your images and radii text');
+if isempty(fileSavePath)
+     fileSavePath=uigetdir('','Please create or select a folder to save the processed images and radii text');
 else
     fileSavePath=fileSavePath;
 end
 
-% check if the user want to save all the images
-if ~exist('doPlot') || isempty(doPlot)
-    doPlot = 0;
-else
-    doPlot=doPlot;
-end
+% % check if the user want to save all the images
+% if ~exist('doPlot') || isempty(doPlot)
+%     doPlot = 0;
+% else
+%     doPlot=doPlot;
+% end
 
 %=========================================================================
 %start to process the videos
@@ -155,8 +170,17 @@ if pupilSize <= 20
     F=imresize(medfilt2(F),2);
 end
 figure,imshow(F),hold on;
-title('Please select one seed point inside the pupil')
+title('Please select one seed point inside the BLACK PART OF THE PUPIL')
 s=round(ginput(1));
+grayValues = impixel(F,s(2),s(1));
+% check the gray value of the seed point
+if grayValues(1) > 80
+    warning('The selected pixel is too bright!Please select the other seed point inside the BLACK PART OF THE PUPIL!');
+    imshow(F),hold on;
+    title('Please select the other seed point inside the BLACK PART OF THE PUPIL!');
+    s=round(ginput(1));
+    grayValues = impixel(F,s(2),s(1));
+end
 s=[s(2),s(1),1];
 close;
 

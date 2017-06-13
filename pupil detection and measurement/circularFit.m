@@ -1,13 +1,17 @@
-function R=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,savePath,doPlot)
+function R=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot)
 % circular fit algorithm for the input video
 
-
 [vpath,vname] = fileparts(v.Name);
-mkdir(savePath,vname);
-folderPath=fullfile(savePath,vname);
+mkdir(fileSavePath,vname);
+folderPath=fullfile(fileSavePath,vname);
 
 n=0;
-if pupilSize > 20
+if pupilSize > 20   % no need to resize the frames
+    rmin = floor(pupilSize*0.4);
+    if rmin < 10
+        rmin = 10;
+    end
+    rmax = rmin*3;
     for i=startFrame:frameInterval:v.NumberofFrames
         F=read(v,i);
         F=rgb2gray(F);
@@ -21,7 +25,10 @@ if pupilSize > 20
         k=convhull(BX,BY);
         FI = poly2mask(BX(k), BY(k),S(1) ,S(2)); %filled binary image
         % find the origin and radius of the pupil
-       [o,r]=imfindcircles(FI,[10,50],'ObjectPolarity','bright');
+       [o,r]=imfindcircles(FI,[rmin,rmax],'ObjectPolarity','bright');
+       if isempty(r)
+           [o,r]=imfindcircles(FI,[rmax,rmax*2],'ObjectPolarity','bright');
+       end
     
         % show the frame with fitted circle on it and save it into current folder
         if doPlot
@@ -54,9 +61,11 @@ if pupilSize > 20
     end
 
 else
+    rmin = 10;
+    rmax = rmin*3;
     for i=startFrame:frameInterval:v.NumberofFrames
         F=read(v,i);
-        F=imresize(medfilt2(rgb2gray(F)),2);
+        F=imresize(medfilt2(rgb2gray(F)),2); %size of the frame is doubled
         S=size(F);
         [P, J] = regionGrowing(F,s,thresVal);
         % find the boundary of the binary image and dilate it on the concave parts of boundary;
@@ -67,7 +76,11 @@ else
         k=convhull(BX,BY);
         FI = poly2mask(BX(k), BY(k),S(1) ,S(2)); %filled binary image
         % find the origin and radius of the pupil
-        [o,r]=imfindcircles(FI,[10,50],'ObjectPolarity','bright');
+        [o,r]=imfindcircles(FI,[rmin,rmax],'ObjectPolarity','bright');
+        if isempty(r)
+            [o,r]=imfindcircles(FI,[rmax,rmax*2],'ObjectPolarity','bright');
+        end
+        
         
         % show the frame with fitted circle on it and save it into current folder
         if doPlot
