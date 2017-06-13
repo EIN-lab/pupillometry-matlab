@@ -30,7 +30,7 @@ def cam_trigger(channel):
     camera.start_recording(filepath)
     camera.wait_recording(duration)
     camera.stop_recording()
-    camera.zoom = (1.0, 1.0, 1.0, 1.0)
+    camera.zoom = (0, 0, 1.0, 1.0)
     print('Recording ended\n')
 
 def read_json(fname):
@@ -61,7 +61,7 @@ camera.color_effects = (128,128)
 camera.framerate = 25
 
 # Start a preview as overlay
-camera.start_preview(alpha=192) # remove alpha=192 to remove transparency
+camera.start_preview(alpha=230) # remove alpha=192 to remove transparency
 
 # Create an array representing a 1280x720 image of
 # a cross through the center of the display. The shape of
@@ -73,7 +73,7 @@ a[210:510, 640, :] = 0xff
 # Add the overlay directly into layer 3 with transparency;
 # we can omit the size parameter of add_overlay as the
 # size is the same as the camera's resolution
-o = camera.add_overlay(np.getbuffer(a), layer=3, alpha=64)
+o = camera.add_overlay(np.getbuffer(a), size=(1280,720), layer=3, alpha=128)
 
 # Show spinning wheel
 spinner = itertools.cycle(['-', '/', '|', '\\']) # set up spinning "wheel"
