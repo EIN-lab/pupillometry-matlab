@@ -19,23 +19,11 @@ if not isMount:
     except RuntimeError:
         print("No internet connection!")
 
-# Predefined values
-channel = 11
-fname = 'params.json'
-
+# Function definitions
 def cam_trigger(channel):
-    print('Trigger detected on channel %s'%channel)
+    # Camera recording
+    print('Trigger detected on channel %s. Recording...\n'%channel)
 
-    data = read_json(fname)
-    #width = int(data["cam_settings"]["width"])
-    #height = int(data["cam_settings"]["height"])
-    #fps = int(data["cam_settings"]["fps"])
-
-    prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    duration = int(data["cam_settings"]["duration"])
-    filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
-
-    print('Recording started')
     camera.start_recording(filepath)
     camera.wait_recording(duration)
     camera.stop_recording()
@@ -48,6 +36,16 @@ def read_json(fname):
 
     return data
 
+# Predefined values
+channel = 11
+fname = 'params.json'
+data = read_json(fname)
+
+# Generate unique filename
+prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+duration = int(data["cam_settings"]["duration"])
+filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
+
 # Set up GPIO
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -58,19 +56,16 @@ camera.rotation = 180
 camera.color_effects = (128,128)
 camera.framerate = 25
 camera.zoom = (.4, .4, .2, .2)
+
+# Start a preview as overlay
 camera.start_preview(alpha=192) # remove alpha=192 to remove transparency
 sleep(2) # Camera warm-up time
-
-#while True:
-#    ch_trig = GPIO.wait_for_edge(channel, GPIO.RISING, timeout=10)
-#    if ch_trig is not None:
-#        cam_trigger(ch_trig)
-
 spinner = itertools.cycle(['-', '/', '|', '\\']) # set up spinning "wheel"
 
 try:
+    print("Ready for trigger\n")
     while True:
-        ch_trig = GPIO.wait_for_edge(channel, GPIO.RISING,timeout=200)
+        ch_trig = GPIO.wait_for_edge(channel, GPIO.RISING,timeout=10)
         sys.stdout.write(spinner.next())  # write the next character
         sys.stdout.flush()                # flush stdout buffer (actual character display)
         sys.stdout.write('\b')            # erase the last written char
