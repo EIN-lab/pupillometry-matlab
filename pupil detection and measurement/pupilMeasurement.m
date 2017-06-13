@@ -1,8 +1,8 @@
-function R = pupilMeasurement(fitMethod,doPlot,thresVal,frameInterval,videoPath,savePath,startFrame,pupilSize)
+function R = pupilMeasurement(fitMethod,doPlot,thresVal,frameInterval,videoPath,fileSavePath,startFrame,pupilSize)
 % Main Algorithm
 % Pupil Detection and Measurement Algorithm for Videos
 %
-% R = pupilMeasurement(fitMethod,doPlot,thresVal,frameInterval,videoPath,savePath,startFrame,pupilSize)
+% R = pupilMeasurement(fitMethod,doPlot,thresVal,frameInterval,videoPath,fileSavePath,startFrame,pupilSize)
 %
 % Syntax:
 %   R = pupilMeasurement;
@@ -32,7 +32,7 @@ function R = pupilMeasurement(fitMethod,doPlot,thresVal,frameInterval,videoPath,
 %       videoPath: should be given as [],then the user needs to select one
 %                  or more video after running the algorithm.
 %
-%       savePath: should be given as [], then the user needs to select (or
+%       fileSavePath: should be given as [], then the user needs to select (or
 %                 create) a folder, which will be used to save the images
 %                 and text file.
 %
@@ -129,14 +129,14 @@ end
 if ~exist('thresVal')|| isempty(thresVal)
     thresVal=18;
 else
-    thresVal=thresVal
+    thresVal=thresVal;
 end
 
 % select the folder to save all the processed images and radii text
-if ~exist('savePath') ||isempty(savePath)
-     savePath=uigetdir('Please select (or create) a folder you want to save your images and radii text');
+if ~exist('fileSavePath') || isempty(fileSavePath)
+     fileSavePath=uigetdir('Please select (or create) a folder you want to save your images and radii text');
 else
-    savePath=savePath;
+    fileSavePath=fileSavePath;
 end
 
 % check if the user want to save all the images
@@ -165,10 +165,10 @@ close;
 if NumberofVideos == 1   % only one video needed to be processed
     if fitMethod == 1   %circular fit only
         FitMethod = 'Circular Fit';
-        R=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,savePath,doPlot);
+        R=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
     elseif fitMethod == 2
         FitMethod = 'Circular + Elliptical Fit';
-        R=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,savePath,doPlot);
+        R=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
     end
 else   % more than 1 video needed to be processed
     R = cell(1,NumberofVideos)
@@ -177,14 +177,14 @@ else   % more than 1 video needed to be processed
         for j=1:NumberofVideos
             videoPath = fullfile(vpath,vname{j});
             v=VideoReader(videoPath);
-            R{j}=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,savePath,doPlot);
+            R{j}=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
         end
     elseif fitMethod == 2
         FitMethod = 'Circular + Elliptical Fit';
         for j=1:NumberofVideos
             videoPath = fullfile(vpath,vname{j});
             v=VideoReader(videoPath);
-            R{j}=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,savePath,doPlot);
+            R{j}=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
         end
     end
 end
