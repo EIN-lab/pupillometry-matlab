@@ -2,6 +2,7 @@ import itertools, sys, os
 from subprocess import call
 import json
 import datetime
+import numpy as np
 
 from time import sleep
 from picamera import PiCamera
@@ -24,9 +25,12 @@ def cam_trigger(channel):
     # Camera recording
     print('Trigger detected on channel %s. Recording...\n'%channel)
 
+    camera.zoom = (.383, .292, .234, .416)
+    camera.remove_overlay(o)
     camera.start_recording(filepath)
     camera.wait_recording(duration)
     camera.stop_recording()
+    camera.zoom = (1.0, 1.0, 1.0, 1.0)
     print('Recording ended\n')
 
 def read_json(fname):
@@ -55,11 +59,23 @@ camera = PiCamera()
 camera.rotation = 180
 camera.color_effects = (128,128)
 camera.framerate = 25
-camera.zoom = (.4, .4, .2, .2)
 
 # Start a preview as overlay
 camera.start_preview(alpha=192) # remove alpha=192 to remove transparency
-sleep(2) # Camera warm-up time
+
+# Create an array representing a 1280x720 image of
+# a cross through the center of the display. The shape of
+# the array must be of the form (height, width, color)
+a = np.zeros((720, 1280, 3), dtype=np.uint8)
+a[360, 490:790, :] = 0xff
+a[210:510, 640, :] = 0xff
+
+# Add the overlay directly into layer 3 with transparency;
+# we can omit the size parameter of add_overlay as the
+# size is the same as the camera's resolution
+o = camera.add_overlay(np.getbuffer(a), layer=3, alpha=64)
+
+# Show spinning wheel
 spinner = itertools.cycle(['-', '/', '|', '\\']) # set up spinning "wheel"
 
 try:
