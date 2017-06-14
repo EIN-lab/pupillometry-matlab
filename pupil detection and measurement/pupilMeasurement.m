@@ -164,20 +164,23 @@ end
 if pupilSize <= 20
     F=imresize(medfilt2(F),2);
 end
-figure,imshow(F),hold on;
+hFig=imshow(F);hold on;
 title('Please select one seed point inside the BLACK PART OF THE PUPIL')
 s=round(ginput(1));
-grayValues = impixel(F,s(2),s(1));
+grayValues = impixel(F,s(1),s(2));
 % check the gray value of the seed point
-if grayValues(1) > 80
-    warning('The selected pixel is too bright!Please select the other seed point inside the BLACK PART OF THE PUPIL!');
-    imshow(F),hold on;
-    title('Please select the other seed point inside the BLACK PART OF THE PUPIL!');
+while grayValues(1) > 125
+    warning(['The selected pixel is too bright!Please select another ', ...
+        'seed point inside the BLACK PART OF THE PUPIL!']);
+    hFig = imshow(F);
+    hold on;
+    title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
     s=round(ginput(1));
-    grayValues = impixel(F,s(2),s(1));
+    grayValues = impixel(F,s(1),s(2));
+    
 end
 s=[s(2),s(1),1];
-close;
+delete(hFig);
 
 
 % Check the fit method and fit the pupil images
