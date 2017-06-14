@@ -49,8 +49,8 @@ function R = pupilMeasurement(varargin)
 %              pupil in each processd frame, and these radii will also be
 %              saved as a txt file
 %
-%         If doPlot=1, all processed frames will also be saved in current
-%         fold with fitted ellipse or circle shown on .
+%         If doPlot is true, all processed frames will also be saved in 
+%         the seleted folder with fitted ellipse or circle shown on .
 
 
 %=========================================================================
@@ -84,12 +84,10 @@ if isempty(videoPath)
 end
 NumberofVideos = numel(cellstr(vname));
 
-% %check the fitMethod
-% if ~exist('fitMethod') || isempty(fitMethod)
-%     fitMethod = 2; % default input of fitMethod is circular+elliptical fit;
-% else
-%     fitMethod = fitMethod;
-% end
+%check the fitMethod
+if fitMethod ~= 1 && fitMethod ~= 2
+    error('Wrong input of fitMethod!')
+end
 
 %check the start frame
 if isempty(startFrame)
@@ -140,12 +138,10 @@ else
     pupilSize = pupilSize;
 end
 
-% % check the threshould value for the region growing segmentation
-% if ~exist('thresVal')|| isempty(thresVal)
-%     thresVal=18;
-% else
-%     thresVal=thresVal;
-% end
+% check the threshould value for the region growing segmentation
+if round(thresVal) ~= thresVal
+    error('Wrong input of thresVal! It should be an integer!')
+end
 
 % select the folder to save all the processed images and radii text
 if isempty(fileSavePath)
@@ -154,12 +150,11 @@ else
     fileSavePath=fileSavePath;
 end
 
-% % check if the user want to save all the images
-% if ~exist('doPlot') || isempty(doPlot)
-%     doPlot = 0;
-% else
-%     doPlot=doPlot;
-% end
+% check if the user want to save all the images
+if doPlot ~= true && doPlot ~= false
+    doPlot = 0;
+    error('Wrong input of doPlot! It should be either true or false!')
+end
 
 %=========================================================================
 %start to process the videos
