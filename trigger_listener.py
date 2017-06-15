@@ -25,6 +25,11 @@ def cam_trigger(channel):
     # Camera recording
     print('Trigger detected on channel %s. Recording...\n'%channel)
     
+    # Generate unique filename
+    prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    duration = int(data["cam_settings"]["duration"])
+    filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
+    
     camera.remove_overlay(o)
     camera.zoom = (.383, .292, .234, .416)
     camera.start_recording(filepath)
@@ -43,11 +48,6 @@ def read_json(fname):
 channel = 11
 fname = 'params.json'
 data = read_json(fname)
-
-# Generate unique filename
-prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-duration = int(data["cam_settings"]["duration"])
-filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]))
 
 # Set up GPIO
 GPIO.setmode(GPIO.BOARD)
