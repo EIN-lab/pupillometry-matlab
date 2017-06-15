@@ -159,8 +159,8 @@ while size(queue, 1)
            sqrt( (xv+i-initPos(1))^2 +...
                  (yv+j-initPos(2))^2 +...
                  (zv+k-initPos(3))^2 ) < maxDist &&...   % within distance?
-           cIM(xv+i, yv+j, zv+k) <= (regVal + thresVal) &&...% within range
-           cIM(xv+i, yv+j, zv+k) >= (regVal - thresVal) % of the threshold?
+             cIM(xv+i, yv+j, zv+k) <= (regVal + thresVal) %&&...% within range
+           % cIM(xv+i, yv+j, zv+k) >= (regVal - thresVal) %% of the threshold?
 
            % current pixel is true, if all properties are fullfilled
            J(xv+i, yv+j, zv+k) = true; 
