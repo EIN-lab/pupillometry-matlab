@@ -75,8 +75,8 @@ if doDisp
     disp(progressStr)
 else
     varargout{1} = progressDec;
-end
 
+end
 end
 
 %% ---------------------------------------------------------------------- %

@@ -53,8 +53,7 @@ function R = pupilMeasurement(varargin)
 %         the seleted folder with fitted ellipse or circle shown on .
 
 
-%=========================================================================
-%check all the input arguments
+%% Check all the input arguments
 close all
 
 if nargin > 8
@@ -115,14 +114,10 @@ else
     startFrame = startFrame
 end
 
-% % check the frame interval
-% if isempty(frameInterval)
-%     frameInterval = 5;  % default value of frameInterval is 5;
-% elseif round(frameInterval) ~= frameInterval
-%     error('Wrong input of frameInterval! It should be an integer!')
-% else
-%     frameInterval = frameInterval;
-% end
+% check the frame interval
+if round(frameInterval) ~= frameInterval
+    error('Wrong input of frameInterval! It should be an integer!')
+end
 
 %check the pupilSize
 if isempty(pupilSize)
@@ -156,59 +151,62 @@ if doPlot ~= true && doPlot ~= false
     error('Wrong input of doPlot! It should be either true or false!')
 end
 
-%=========================================================================
-%start to process the videos
+
+%% Start to process the videos
 
 %check the size of eye and select the seed point s for regionGrowing
 %segmentation
 if pupilSize <= 20
     F=imresize(medfilt2(F),2);
 end
-hFig=imshow(F);
+% hFig=imshow(F);
+imshow(F)
 hold on
-title('Please select one seed point inside the BLACK PART OF THE PUPIL')
-s=round(ginput(1));
-grayValues = impixel(F,s(1),s(2));
-% check the gray value of the seed point
-while any(grayValues > 120)
-    warning(['The selected pixel is too bright!Please select another ', ...
-        'seed point inside the BLACK PART OF THE PUPIL!']);
-    hFig = imshow(F);
-    hold on
-    title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
-    s=round(ginput(1));
-    grayValues = impixel(F,s(1),s(2));
-    
-end
-s=[s(2),s(1),1];
-hold off
-delete(hFig);
-pause(.1);
+% title({'Please select 4 seed points inside the BLACK PART OF THE PUPIL.',...
+%         'The seed points should be located as far away from each other as possible.',...
+%         'The best selection would be the top, bottom, left and right sides of the pupil.'})
+title('Please select 4 seed points inside the BLACK PART OF THE PUPIL. The seed points should be located as far away from each other as possible. The best selection would be the top, bottom, left and right sides of the pupil.')
+seedPoints=round(ginput(4));
+close
+% grayValues = impixel(F,seedPoints(1),seedPoints(2));
+% % check the gray value of the seed point
+% while any(grayValues > 120)
+%     warning(['The selected pixel is too bright!Please select another ', ...
+%         'seed point inside the BLACK PART OF THE PUPIL!']);
+%     hFig = imshow(F);
+%     hold on
+%     title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
+%     seedPoints=round(ginput(1));
+%     grayValues = impixel(F,seedPoints(1),seedPoints(2));
+%     
+% end
+% seedPoints=[seedPoints(2),seedPoints(1),1];
+% hold off
+% delete(hFig);
+% pause(.1);
 
 % Check the fit method and fit the pupil images
 if NumberofVideos == 1   % only one video needed to be processed
     if fitMethod == 1   %circular fit only
-        FitMethod = 'Circular Fit';
-        R=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
+        R=circularFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
     elseif fitMethod == 2
-        FitMethod = 'Circular + Elliptical Fit';
-        R=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
+        R=circular_ellipticalFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
     end
 else   % more than 1 video needed to be processed
     Rcell = cell(1,NumberofVideos);
     if fitMethod == 1   %circular fit only
-        FitMethod = 'Circular Fit';
         for j=1:NumberofVideos
             videoPath = fullfile(vpath,vname{j});
             v=VideoReader(videoPath);
-            Rcell{j}=circularFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
+            Rcell{j}=circularFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
         end
+        
     elseif fitMethod == 2
-        FitMethod = 'Circular + Elliptical Fit';
         for j=1:NumberofVideos
             videoPath = fullfile(vpath,vname{j});
             v=VideoReader(videoPath);
-            Rcell{j}=circular_ellipticalFit(v,s,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
+            Rcell{j}=circular_ellipticalFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
+
         end
     end
     R=Rcell;
