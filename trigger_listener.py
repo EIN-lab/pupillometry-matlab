@@ -24,13 +24,12 @@ if not isMount:
 def cam_trigger(channel):
     # Camera recording
     print('Trigger detected on channel %s. Recording...\n'%channel)
-
-    camera.zoom = (.383, .292, .234, .416)
+    
     camera.remove_overlay(o)
+    camera.zoom = (.383, .292, .234, .416)
     camera.start_recording(filepath)
     camera.wait_recording(duration)
     camera.stop_recording()
-    camera.zoom = (0, 0, 1.0, 1.0)
     print('Recording ended\n')
 
 def read_json(fname):
@@ -87,6 +86,8 @@ try:
         sys.stdout.write('\b')            # erase the last written char
         if ch_trig is not None:
             cam_trigger(ch_trig)
+            o = camera.add_overlay(np.getbuffer(a), size=(1280,720), layer=3, alpha=128)
+            camera.zoom = (0, 0, 1, 1)
 except KeyboardInterrupt:
     camera.stop_preview()
     GPIO.cleanup()
