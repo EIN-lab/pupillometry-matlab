@@ -168,22 +168,6 @@ hold on
 title('Please select 4 seed points inside the BLACK PART OF THE PUPIL. The seed points should be located as far away from each other as possible. The best selection would be the top, bottom, left and right sides of the pupil.')
 seedPoints=round(ginput(4));
 close
-% grayValues = impixel(F,seedPoints(1),seedPoints(2));
-% % check the gray value of the seed point
-% while any(grayValues > 120)
-%     warning(['The selected pixel is too bright!Please select another ', ...
-%         'seed point inside the BLACK PART OF THE PUPIL!']);
-%     hFig = imshow(F);
-%     hold on
-%     title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
-%     seedPoints=round(ginput(1));
-%     grayValues = impixel(F,seedPoints(1),seedPoints(2));
-%     
-% end
-% seedPoints=[seedPoints(2),seedPoints(1),1];
-% hold off
-% delete(hFig);
-% pause(.1);
 
 % Check the fit method and fit the pupil images
 if NumberofVideos == 1   % only one video needed to be processed

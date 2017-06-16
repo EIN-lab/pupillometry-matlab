@@ -6,6 +6,7 @@ mkdir(fileSavePath,vname);
 folderPath=fullfile(fileSavePath,vname);
 sFormer=[];
 n=0;
+
 if pupilSize > 20   % no need to resize the frames
     rmin = floor(pupilSize*0.4);
     if rmin <10
@@ -35,20 +36,41 @@ if pupilSize > 20   % no need to resize the frames
                 imshow(F),hold on
                 title('No valid seed point in this frame. Please select a new seed point');
                 s=round(ginput(1));
+                % check the gray value of the seed point
+                while any(impixel(F,s(1),s(2)) > 100)
+                    warning(['The selected pixel is too bright!Please select another ', ...
+                        'seed point inside the BLACK PART OF THE PUPIL!']);
+                    hFig = imshow(F);
+                    hold on
+                    title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
+                    s=round(ginput(1));
+                end
                 sFormer=s;
                 s=[s(2),s(1),1];
                 close
-            elseif ~isempty(sFormer) && impixel(F,sFormer(1),sFormer(2)) < 100
-                s=[sFormer(2),sFormer(1),1];
             else
-                imshow(F),hold on
-                title('No valid seed point in this frame. Please select a new seed point');
-                s=round(ginput(1));
-                sFormer=s;
-                s=[s(2),s(1),1];
-                close
-            end
-            
+                if impixel(F,sFormer(1),sFormer(2)) <= 100
+                    s=[sFormer(2),sFormer(1),1];
+                else
+                    hFig =imshow(F);
+                    hold on
+                    title('No valid seed point in this frame. Please select a new seed point');
+                    s=round(ginput(1));
+                    % check the gray value of the seed point
+                    while any(impixel(F,s(1),s(2))> 100)
+                        warning(['The selected pixel is too bright!Please select another ', ...
+                            'seed point inside the BLACK PART OF THE PUPIL!']);
+                        hFig = imshow(F);
+                        hold on
+                        title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
+                        s=round(ginput(1));
+                    end
+                    sFormer=s;
+                    s=[s(2),s(1),1];
+                    hold off
+                    delete(hFig);
+                end
+            end            
         end
         
         % use regionGrowing to segment the pupil
@@ -153,20 +175,41 @@ else % size of the frame need to be doubled
                 imshow(F),hold on
                 title('No valid seed point in this frame. Please select a new seed point');
                 s=round(ginput(1));
+                % check the gray value of the seed point
+                while any(impixel(F,s(1),s(2)) > 100)
+                    warning(['The selected pixel is too bright!Please select another ', ...
+                        'seed point inside the BLACK PART OF THE PUPIL!']);
+                    hFig = imshow(F);
+                    hold on
+                    title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
+                    s=round(ginput(1));
+                end
                 sFormer=s;
                 s=[s(2),s(1),1];
                 close
-            elseif ~isempty(sFormer) && impixel(F,sFormer(1),sFormer(2)) < 100
-                s=[sFormer(2),sFormer(1),1];
             else
-                imshow(F),hold on
-                title('No valid seed point in this frame. Please select a new seed point');
-                s=round(ginput(1));
-                sFormer=s;
-                s=[s(2),s(1),1];
-                close
-            end
-            
+                if impixel(F,sFormer(1),sFormer(2)) <= 100
+                    s=[sFormer(2),sFormer(1),1];
+                else
+                    hFig =imshow(F);
+                    hold on
+                    title('No valid seed point in this frame. Please select a new seed point');
+                    s=round(ginput(1));
+                    % check the gray value of the seed point
+                    while any(impixel(F,s(1),s(2))> 100)
+                        warning(['The selected pixel is too bright!Please select another ', ...
+                            'seed point inside the BLACK PART OF THE PUPIL!']);
+                        hFig = imshow(F);
+                        hold on
+                        title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
+                        s=round(ginput(1));
+                    end
+                    sFormer=s;
+                    s=[s(2),s(1),1];
+                    hold off
+                    delete(hFig);
+                end
+            end            
         end
         
         % use regionGrowing to segment the pupil
