@@ -1,0 +1,1 @@
+In this file, the pupilMeaurement function will ask the user to select 4 seed points at the beginning.
