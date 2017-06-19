@@ -1,0 +1,1 @@
+In this file, the pupilMeaurement function will use one point on the drawn line,whose gray value is the lowest, as the seed point at the beginning. 
