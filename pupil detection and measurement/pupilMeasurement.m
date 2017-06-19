@@ -111,8 +111,6 @@ elseif round(startFrame) ~= startFrame
     % When there is no input for startFrame, the algorithm will select the
     % first frame of the video,whose maximal gray value is higher than 100, as
     % the startFrame.
-else
-    startFrame = startFrame
 end
 
 % % check the frame interval
@@ -134,8 +132,6 @@ if isempty(pupilSize)
     h = imdistline(gca,pos(:,1),pos(:,2));
     pupilSize=getDistance(h);
     close
-else
-    pupilSize = pupilSize;
 end
 
 % check the threshould value for the region growing segmentation
@@ -145,9 +141,7 @@ end
 
 % select the folder to save all the processed images and radii text
 if isempty(fileSavePath)
-     fileSavePath=uigetdir('','Please create or select a folder to save the processed images and radii text');
-else
-    fileSavePath=fileSavePath;
+     fileSavePath=uigetdir(fileparts(videoPath),'Please create or select a folder to save the processed images and radii text');
 end
 
 % check if the user want to save all the images
@@ -173,16 +167,13 @@ grayValues = impixel(F,s(1),s(2));
 while any(grayValues > 120)
     warning(['The selected pixel is too bright!Please select another ', ...
         'seed point inside the BLACK PART OF THE PUPIL!']);
-    hFig = imshow(F);
-    hold on
-    title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
     s=round(ginput(1));
     grayValues = impixel(F,s(1),s(2));
     
 end
 s=[s(2),s(1),1];
 hold off
-delete(hFig);
+close(gcf);
 pause(.1);
 
 % Check the fit method and fit the pupil images
