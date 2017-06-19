@@ -12,6 +12,7 @@ function R = pupilMeasurement(varargin)
 % Inputs:
 %       fitMethod: input 1 - circular fit(if pupils are almost circular);
 %                  input 2 - circular+elliptical fit.
+%                  input 3 - elliptical fit only
 %                  Default value - 2
 %
 %       doPlot: input false - only save the radii in a txt file.
@@ -84,7 +85,7 @@ end
 NumberofVideos = numel(cellstr(vname));
 
 %check the fitMethod
-if fitMethod ~= 1 && fitMethod ~= 2
+if fitMethod ~= 1 && fitMethod ~= 2 && fitMethod ~= 3
     error('Wrong input of fitMethod!')
 end
 
@@ -175,6 +176,8 @@ if NumberofVideos == 1   % only one video needed to be processed
         R=circularFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
     elseif fitMethod == 2
         R=circular_ellipticalFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
+    elseif fitMethod == 3
+        R=ellipticalFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
     end
 else   % more than 1 video needed to be processed
     Rcell = cell(1,NumberofVideos);
@@ -190,7 +193,12 @@ else   % more than 1 video needed to be processed
             videoPath = fullfile(vpath,vname{j});
             v=VideoReader(videoPath);
             Rcell{j}=circular_ellipticalFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
-
+        end
+    elseif fitMethod == 3
+        for j=1:NumberofVideos
+            videoPath = fullfile(vpath,vname{j});
+            v=VideoReader(videoPath);
+            Rcell{j}=ellipticalFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
         end
     end
     R=Rcell;
