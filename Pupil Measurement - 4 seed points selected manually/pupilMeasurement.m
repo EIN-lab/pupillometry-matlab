@@ -36,7 +36,7 @@ function R = pupilMeasurement(varargin)
 %                 create) a folder, which will be used to save the images
 %                 and text file.
 %
-%       startFrame: the number of the first frame to be processed. 
+%       startFrame: the number of the first frame to be processed.
 %                   Default value - the number of the first frame whose
 %                   maximal gray value is higher than 100
 %
@@ -50,7 +50,7 @@ function R = pupilMeasurement(varargin)
 %              pupil in each processd frame, and these radii will also be
 %              saved as a txt file
 %
-%         If doPlot is true, all processed frames will also be saved in 
+%         If doPlot is true, all processed frames will also be saved in
 %         the seleted folder with fitted ellipse or circle shown on .
 
 
@@ -111,8 +111,6 @@ elseif round(startFrame) ~= startFrame
     % When there is no input for startFrame, the algorithm will select the
     % first frame of the video,whose maximal gray value is higher than 100, as
     % the startFrame.
-else
-    startFrame = startFrame
 end
 
 % check the frame interval
@@ -130,8 +128,6 @@ if isempty(pupilSize)
     h = imdistline(gca,pos(:,1),pos(:,2));
     pupilSize=getDistance(h);
     close
-else
-    pupilSize = pupilSize;
 end
 
 % check the threshould value for the region growing segmentation
@@ -141,9 +137,7 @@ end
 
 % select the folder to save all the processed images and radii text
 if isempty(fileSavePath)
-     fileSavePath=uigetdir('','Please create or select a folder to save the processed images and radii text');
-else
-    fileSavePath=fileSavePath;
+     fileSavePath=uigetdir(fileparts(videoPath),'Please create or select a folder to save the processed images and radii text');
 end
 
 % check if the user want to save all the images
@@ -163,6 +157,7 @@ end
 % hFig=imshow(F);
 imshow(F)
 hold on
+
 % title({'Please select 4 seed points inside the BLACK PART OF THE PUPIL.',...
 %         'The seed points should be located as far away from each other as possible.',...
 %         'The best selection would be the top, bottom, left and right sides of the pupil.'})
@@ -187,7 +182,7 @@ else   % more than 1 video needed to be processed
             v=VideoReader(videoPath);
             Rcell{j}=circularFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
         end
-        
+
     elseif fitMethod == 2
         for j=1:NumberofVideos
             videoPath = fullfile(vpath,vname{j});
@@ -209,5 +204,3 @@ end
 % % disp(['Frame Interval : 'num2str(frameInterval)])
 % disp(['Fit Method :' FitMethod]);
 % % disp(['Threshold of the Region Growing Segmentation :'num2str(thresVal)]);
-    
-    
