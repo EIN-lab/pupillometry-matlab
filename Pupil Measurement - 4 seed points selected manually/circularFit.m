@@ -1,4 +1,4 @@
-function R=circularFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot)
+function R=circularFit(v,seedPoints,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot)
 % circular fit algorithm for the input video
 
 [vpath,vname] = fileparts(v.Name);
@@ -22,57 +22,9 @@ if pupilSize > 20   % no need to resize the frames
         
         % select one of the input seed points which is located inside the black
         % part of the pupil
-        s=[];
-        for j=1:4
-            if impixel(F,seedPoints(j,1),seedPoints(j,2)) < 100
-                s=[seedPoints(j,2),seedPoints(j,1),1];
-                break
-            end 
-        end
-        % If there is no valid seed point, the user have to select a new
-        % seed point for this frame
-        if isempty(s)
-            if isempty(sFormer)
-                imshow(F),hold on
-                title('No valid seed point in this frame. Please select a new seed point');
-                s=round(ginput(1));
-                % check the gray value of the seed point
-                while any(impixel(F,s(1),s(2)) > 100)
-                    warning(['The selected pixel is too bright!Please select another ', ...
-                        'seed point inside the BLACK PART OF THE PUPIL!']);
-                    hFig = imshow(F);
-                    hold on
-                    title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
-                    s=round(ginput(1));
-                end
-                sFormer=s;
-                s=[s(2),s(1),1];
-                close
-            else
-                if impixel(F,sFormer(1),sFormer(2)) <= 100
-                    s=[sFormer(2),sFormer(1),1];
-                else
-                    hFig =imshow(F);
-                    hold on
-                    title('No valid seed point in this frame. Please select a new seed point');
-                    s=round(ginput(1));
-                    % check the gray value of the seed point
-                    while any(impixel(F,s(1),s(2))> 100)
-                        warning(['The selected pixel is too bright!Please select another ', ...
-                            'seed point inside the BLACK PART OF THE PUPIL!']);
-                        hFig = imshow(F);
-                        hold on
-                        title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
-                        s=round(ginput(1));
-                    end
-                    sFormer=s;
-                    s=[s(2),s(1),1];
-                    hold off
-                    delete(hFig);
-                end
-            end            
-        end
+        [s,sFormer] =checkSeedPoints(F,seedPoints,sThres,sFormer);
         
+        % segmentation of the image F
         [P, J] = regionGrowing(F,s,thresVal);
         % opening operation and find the boundary of the binary image
         B=bwboundaries(J);
@@ -98,7 +50,7 @@ if pupilSize > 20   % no need to resize the frames
             title(str);
             filename=sprintf('frame %d',i);
             Iname=fullfile(folderPath,filename);
-            saveas(gcf,filename,'jpg');
+            saveas(gcf,Iname,'jpg');
             close;
         end
    
@@ -118,7 +70,8 @@ if pupilSize > 20   % no need to resize the frames
             R(n)=r(1);
         end
     end
-
+    
+else % image size will be doubled
     rmin = 10;
     rmax = rmin*3;
     for i=startFrame:frameInterval:v.NumberofFrames
@@ -130,57 +83,9 @@ if pupilSize > 20   % no need to resize the frames
         
         % select one of the input seed points which is located inside the black
         % part of the pupil
-        s=[];
-        for j=1:4
-            if impixel(F,seedPoints(j,1),seedPoints(j,2)) < 100
-                s=[seedPoints(j,2),seedPoints(j,1),1];
-                break
-            end
-        end
-        % If there is no valid seed point, the user have to select a new
-        % seed point for this frame
-        if isempty(s)
-            if isempty(sFormer)
-                imshow(F),hold on
-                title('No valid seed point in this frame. Please select a new seed point');
-                s=round(ginput(1));
-                % check the gray value of the seed point
-                while any(impixel(F,s(1),s(2)) > 100)
-                    warning(['The selected pixel is too bright!Please select another ', ...
-                        'seed point inside the BLACK PART OF THE PUPIL!']);
-                    hFig = imshow(F);
-                    hold on
-                    title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
-                    s=round(ginput(1));
-                end
-                sFormer=s;
-                s=[s(2),s(1),1];
-                close
-            else
-                if impixel(F,sFormer(1),sFormer(2)) <= 100
-                    s=[sFormer(2),sFormer(1),1];
-                else
-                    hFig =imshow(F);
-                    hold on
-                    title('No valid seed point in this frame. Please select a new seed point');
-                    s=round(ginput(1));
-                    % check the gray value of the seed point
-                    while any(impixel(F,s(1),s(2))> 100)
-                        warning(['The selected pixel is too bright!Please select another ', ...
-                            'seed point inside the BLACK PART OF THE PUPIL!']);
-                        hFig = imshow(F);
-                        hold on
-                        title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
-                        s=round(ginput(1));
-                    end
-                    sFormer=s;
-                    s=[s(2),s(1),1];
-                    hold off
-                    delete(hFig);
-                end
-            end            
-        end
+        [s,sFormer] =checkSeedPoints(F,seedPoints,sThres,sFormer);
         
+        % segmentation of the image F  
         [P, J] = regionGrowing(F,s,thresVal);
         % find the boundary of the binary image and dilate it on the concave parts of boundary;
         B=bwboundaries(J);
