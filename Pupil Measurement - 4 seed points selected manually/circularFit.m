@@ -17,7 +17,7 @@ if pupilSize > 20   % no need to resize the frames
         message = strcat('processed video : ',v.name);
         progbar(i/v.NumberofFrames,'msg',message);
         F=read(v,i);
-        F=rgb2gray(F);
+        F=medfilt2(rgb2gray(F)); 
         S=size(F);
         
         % select one of the input seed points which is located inside the black
@@ -26,7 +26,7 @@ if pupilSize > 20   % no need to resize the frames
         
         % segmentation of the image F
         [P, J] = regionGrowing(F,s,thresVal);
-        % opening operation and find the boundary of the binary image
+        % opening operation and find the boundary of the binary image J
         B=bwboundaries(J);
         BX =B{1}(:, 2);
         BY =B{1}(:, 1);
@@ -39,39 +39,38 @@ if pupilSize > 20   % no need to resize the frames
            [o,r]=imfindcircles(FI,[rmax,rmax*2],'ObjectPolarity','bright');
        end
     
-        % show the frame with fitted circle and seed point on it and save
-        % it into the selected folder
-        if doPlot
-            figure,imshow(F);
-            h=viscircles(o,r,'LineWidth',0.001);
-            hold on;
-            plot(s(2),s(1),'r+');
-            str=sprintf('frame %d, r=%f',i,r);
-            title(str);
-            filename=sprintf('frame %d',i);
-            Iname=fullfile(folderPath,filename);
-            saveas(gcf,Iname,'jpg');
-            close;
-        end
+       % show the frame with fitted circle and seed point on it and save
+       % it into the selected folder
+       if doPlot
+           figure,imshow(F,'Border','tight');
+           h=viscircles(o,r,'LineWidth',2.5);
+           hold on;
+           plot(s(2),s(1),'r+')
+           str=sprintf('frame %d, r=%f',i,r);
+           annotation('textbox',[0.05,0.85,0.1,0.1],'string',str,'Color','r','FontWeight','bold','LineStyle','none','FontSize',20);
+           filename=sprintf('frame %d.jpg',i);
+           Iname=fullfile(folderPath,filename);
+           Fsave=getframe(gcf);
+           imwrite(Fsave.cdata,Iname);
+           hold off
+           close;
+       end
    
         % matrix O (n*2) - coordinates of the pupil center, where n is the number of frame
         % matrix R (n*1) - radius of the pupil
         n=n+1;
-        if length(r)==2
-            if abs(R(n)-r(1))>abs(R(n)-r(2))
-                O(n,:)=o(2,:);
-                R(n)=r(2);
+        if length(r) == 2
+            if abs(R(n-1,2)-r(1))>abs(R(n-1,2)-r(2))
+                R(n,:)=[i,r(2)];
             else
-                O(n,:)=o(1,:);
-                R(n)=r(1);
+                R(n,:)=[i,r(1)];
             end
-        else
-            O(n,:)=o(1,:);
-            R(n)=r(1);
+        elseif length(r) == 1
+            R(n,:)=[i,r(1)];
         end
     end
     
-else % image size will be doubled
+else % frame size will be doubled
     rmin = 10;
     rmax = rmin*3;
     for i=startFrame:frameInterval:v.NumberofFrames
@@ -104,48 +103,49 @@ else % image size will be doubled
         % show the frame with fitted circle and seed point on it and save
         % it into the selected folder
         if doPlot
-            figure,imshow(F);
-            h=viscircles(o,r,'LineWidth',0.1);
+            figure,imshow(F,'Border','tight');
+            h=viscircles(o,r,'LineWidth',2.5);
             hold on;
-            plot(s(2),s(1),'r+');
+            plot(s(2),s(1),'r+')
             str=sprintf('frame %d, r=%f',i,r);
-            title(str);
-            filename=sprintf('frame %d',i);
+            annotation('textbox',[0.05,0.85,0.1,0.1],'string',str,'Color','r','FontWeight','bold','LineStyle','none','FontSize',10);
+            filename=sprintf('frame %d.jpg',i);
             Iname=fullfile(folderPath,filename);
-            saveas(gcf,Iname,'jpg');
+            Fsave=getframe(gcf);
+            imwrite(Fsave.cdata,Iname);
+            hold off
             close;
         end
         
         % matrix O (n*2) - coordinates of the pupil center, where n is the number of frame
         % matrix R (n*1) - radius of the pupil
         n=n+1;
-        if length(r)==2
-            if abs(R(n)-r(1))>abs(R(n)-r(2))
-                O(n,:)=o(2,:);
-                R(n)=r(2);
+        if length(r) == 2
+            if abs(R(n-1,2)-r(1))>abs(R(n-1,2)-r(2))
+                R(n,:)=[i,r(2)];
             else
-                O(n,:)=o(1,:);
-                R(n)=r(1);
+                R(n,:)=[i,r(1)];
             end
-        else
-            O(n,:)=o(1,:);
-            R(n)=r(1);
+        elseif length(r) == 1
+            R(n,:)=[i,r(1)];
         end
     end
 end
 % save the matrix of Radii as a text file
 Tname = fullfile(folderPath,'Pupil Radii- fitted by circle.txt');
-dlmwrite(Tname,R);
+dlmwrite(Tname,R,'newline','pc','delimiter','\t'); 
 
 % plot the variation of the pupil radius and save it as a jpg figure.
 if doPlot
     close all
-    plot(R), hold on;
+    plot(R(:,1),R(:,2)), hold on;
     title('Variation of Pupil Radius - fitted by circle')
     xlabel('frame number')
     ylabel('Pupil Radius/pixel')
     Pname = fullfile(folderPath,'Variation of Pupil Radius - fitted by circle' );
     saveas(gcf,Pname,'jpg');
+    hold off
+    close
 end
 
 end

@@ -41,7 +41,7 @@ if pupilSize > 20   % no need to resize the frames
         b = p.MinorAxisLength/2;
         angle = p.Orientation;
         steps = 50;
-        R(n)=a;
+        R(n,:)=[i,a];
         % show the frame with fitted ellipse and seed point on it and
         % save the image into the selected folder
         if doPlot
@@ -53,15 +53,17 @@ if pupilSize > 20   % no need to resize the frames
             cosalpha = cos(alpha);
             X = x + (a * cosalpha * cosbeta - b * sinalpha * sinbeta);
             Y = y + (a * cosalpha * sinbeta + b * sinalpha * cosbeta);
-            figure,imshow(F);
+            figure,imshow(F,'Border','tight');
             hold on;
             plot(s(2),s(1),'r+')
-            plot(X,Y,'r','LineWidth',0.01)
-            str=sprintf('frame %d, a=%f, b=%f',i,a,b);
-            title(str);
-            filename=sprintf('frame %d',i);
+            plot(X,Y,'r','LineWidth',2.5)
+            str=sprintf('frame %d, r=%f',i,a);
+            annotation('textbox',[0.05,0.85,0.1,0.1],'string',str,'Color','r','FontWeight','bold','LineStyle','none','FontSize',20);
+            filename=sprintf('frame %d.jpg',i);
             Iname=fullfile(folderPath,filename);
-            saveas(gcf,Iname,'jpg');
+            Fsave=getframe(gcf);
+            imwrite(Fsave.cdata,Iname);
+            hold off
             close;
         end
         
@@ -100,7 +102,7 @@ else % size of the frame need to be doubled
         b = p.MinorAxisLength/2;
         angle = p.Orientation;
         steps = 50;
-        R(n)=a;
+        R(n,:)=[i,a]; 
         % show the frame with fitted ellipse and seed point on it and
         % save the image into the selected folder
         if doPlot
@@ -112,15 +114,17 @@ else % size of the frame need to be doubled
             cosalpha = cos(alpha);
             X = x + (a * cosalpha * cosbeta - b * sinalpha * sinbeta);
             Y = y + (a * cosalpha * sinbeta + b * sinalpha * cosbeta);
-            figure,imshow(F);
+            figure,imshow(F,'Border','tight');
             hold on;
             plot(s(2),s(1),'r+')
-            plot(X,Y,'r','LineWidth',0.01)
-            str=sprintf('frame %d, a=%f, b=%f',i,a,b);
-            title(str);
-            filename=sprintf('frame %d',i);
+            plot(X,Y,'r','LineWidth',2.5)
+            str=sprintf('frame %d, r=%f',i,a);
+            annotation('textbox',[0.05,0.85,0.1,0.1],'string',str,'Color','r','FontWeight','bold','LineStyle','none','FontSize',10);
+            filename=sprintf('frame %d.jpg',i);
             Iname=fullfile(folderPath,filename);
-            saveas(gcf,Iname,'jpg');
+            Fsave=getframe(gcf);
+            imwrite(Fsave.cdata,Iname);
+            hold off
             close;
         end
         
@@ -129,17 +133,19 @@ end
 
 % save the matrix of Radii as a text file
 Tname = fullfile(folderPath,'Pupil Radii- fitted by ellipse.txt');
-dlmwrite(Tname,R)
+dlmwrite(Tname,R,'newline','pc','delimiter','\t');
 
 % plot the variation of the pupil radius and save it as a jpg figure.
 if doPlot
     close all
-    plot(R), hold on;
+    plot(R(:,1),R(:,2)), hold on;
     title('Variation of Pupil Radius - fitted by ellipse');
     xlabel('frame number');
     ylabel('Pupil Radius/pixel');
     Pname = fullfile(folderPath,'Variation of Pupil Radius - fitted by ellipse' );
     saveas(gcf,Pname,'jpg');
+    hold off
+    close
 end
 
 end

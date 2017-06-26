@@ -114,6 +114,13 @@ else
         error('Wrong input of startFrame! It should be an integer!')
     else
         startFrame = startFrame;
+        if NumberofVideos == 1
+            videoPath = fullfile(vpath,vname);
+        else
+            videoPath = fullfile(vpath,vname{1});
+        end
+        v=VideoReader(videoPath);
+        F=rgb2gray(read(v,startFrame));
     end
 end
 
