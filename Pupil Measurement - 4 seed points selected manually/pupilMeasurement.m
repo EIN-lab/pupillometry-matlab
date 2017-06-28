@@ -54,18 +54,13 @@ function R = pupilMeasurement(varargin)
 
 
 %% Check all the input arguments
-close all
+pNames = {'fitMethod', 'doPlot', 'thresVal', 'frameInterval', ...
+    'videoPath', 'fileSavePath', 'startFrame', 'pupilSize'};
+pValues = {2, false, 18, 5, [], [], [], []};
+params = cell2struct(pValues, pNames, 2);
 
-if nargin > 8
-    error('Wrong number of input arguments!')
-end
-
-pNames = {'fitMethod';'doPlot';'thresVal';'frameInterval';'videoPath';...
-            'fileSavePath';'startFrame';'pupilSize'};
-pValues = {2;false;18;5;[];[];[];[]};
-dflts = cell2struct(pValues, pNames);
 % Parse function input arguments
-params = parsepropval2(dflts, varargin{:});
+params = parsepropval2(params, varargin{:});
 
 fitMethod = params.fitMethod;
 doPlot = params.doPlot;
@@ -78,38 +73,57 @@ pupilSize = params.pupilSize;
 
 %select videos%
 if isempty(videoPath)
-    [vname,vpath] = uigetfile({'*.mp4;*.m4v;*.avi;*.mov;*.mj2;*.mpg;*.wmv;*.asf;*.asx'},...
+    [vname, vpath] = uigetfile({'*.mp4;*.m4v;*.avi;*.mov;*.mj2;*.mpg;*.wmv;*.asf;*.asx'},...
         'Please select the video file(s)','multiselect','on');
+    if vname == 0
+        error('Please select a file to load')
+    end
+    videoPath = fullfile(vname, vpath);
 end
-NumberofVideos = numel(cellstr(vname));
+
+NumberofVideos = numel(cellstr(videoPath));
 
 %check the fitMethod
 if fitMethod ~= 1 && fitMethod ~= 2
     error('Wrong input of fitMethod!')
 end
 
-%check the start frame
+% Instantiate video reader
+if NumberofVideos ~= 1
+    sourcePath = fullfile(videoPath{1});
+else
+    sourcePath = videoPath;
+end
+
+% Read video frames while available
+v=VideoReader(sourcePath);
+    
+% Find the start frame
 if isempty(startFrame)
-    if NumberofVideos == 1
-        videoPath = fullfile(vpath,vname);
-    else
-        videoPath = fullfile(vpath,vname{1});
-    end
-    v=VideoReader(videoPath);
-    maxGrayLevel=0;
-    for i=1:v.NumberOfFrames;
-        F=rgb2gray(read(v,i));
+    while hasFrame(v)
+        F=rgb2gray(readFrame(v));
         maxGrayLevel = max(max(F(:)));
         if maxGrayLevel > 200
-            startFrame = i;
+            startFrame = v.CurrentTime*v.FrameRate;
             break
         end
     end
-elseif round(startFrame) ~= startFrame
-    error('Wrong input of startFrame! It should be an integer!')
-    % When there is no input for startFrame, the algorithm will select the
-    % first frame of the video,whose maximal gray value is higher than 100, as
-    % the startFrame.
+else
+    % Check startFrame property
+    isnum = isnumeric(startFrame);
+    isscal = isscalar(startFrame);
+    if ~isnum || ~isscal
+        error('startFrame property must be scalar integer')
+    end
+    
+    isint = round(startFrame) == startFrame;
+    if ~isint
+        warning('startFrame property should be an integer.')
+        startFrame = round(startFrame);
+    end
+    
+    % Set video start time
+    v.CurrentTime = startFrame*v.FrameRate;
 end
 
 % check the frame interval
@@ -160,7 +174,9 @@ hold on
 % title({'Please select 4 seed points inside the BLACK PART OF THE PUPIL.',...
 %         'The seed points should be located as far away from each other as possible.',...
 %         'The best selection would be the top, bottom, left and right sides of the pupil.'})
-title('Please select 4 seed points inside the BLACK PART OF THE PUPIL. The seed points should be located as far away from each other as possible. The best selection would be the top, bottom, left and right sides of the pupil.')
+title(sprintf(['Please select 4 seed points inside the BLACK PART OF THE PUPIL.\n', ...
+    'The seed points should be located as far away from each other as possible. \n', ...
+    'The best selection would be the top, bottom, left and right sides of the pupil.']))
 seedPoints=round(ginput(4));
 close
 
