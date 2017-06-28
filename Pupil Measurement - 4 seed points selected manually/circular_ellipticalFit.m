@@ -1,6 +1,7 @@
-function R=circular_ellipticalFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot)
+function R=circular_ellipticalFit(v,seedPoints,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot)
 % circular+elliptical fit algorithm for the input video
 
+% creat a new folder to save the radii text and the processed frames
 [vpath,vname] = fileparts(v.Name);
 mkdir(fileSavePath,vname);
 folderPath=fullfile(fileSavePath,vname);
@@ -12,8 +13,8 @@ if doPlot
     hFigVid = figure;
     currAxes = axes;
 end
-        
-% no need to resize the frames
+
+%
 rmin = floor(pupilSize*0.4);
 if rmin <10
     rmin = 10;
@@ -27,63 +28,14 @@ while hasFrame(v)
     % Increment video reader
     v.CurrentTime = min(v.CurrentTime + (frameInterval/v.FrameRate), v.Duration);
     F=medfilt2(rgb2gray(F));
-    if pupilSize > 20
+    if pupilSize < 20
         F = imresize(F, 2);
     end
     S=size(F);
     
     % select one of the input seed points which is located inside the black
     % part of the pupil
-    s=[];
-    for j=1:4
-        if impixel(F,seedPoints(j,1),seedPoints(j,2)) < 100
-            s=[seedPoints(j,2),seedPoints(j,1),1];
-            break
-        end
-    end
-    % If there is no valid seed point, the user have to select a new
-    % seed point for this frame
-    if isempty(s)
-        if isempty(sFormer)
-            hFig = imshow(F);
-            title('No valid seed point in this frame. Please select a new seed point');
-            s=round(ginput(1));
-            % check the gray value of the seed point
-%             while any(impixel(F,s(1),s(2)) > 120)
-%                 warning(['The selected pixel is too bright!Please select another ', ...
-%                     'seed point inside the BLACK PART OF THE PUPIL!']);
-%                 hFig = imshow(F);
-%                 title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
-%                 s=round(ginput(1));
-%                 delete(hFig);
-%             end
-%             delete(hFig);
-            sFormer=s;
-            s=[s(2),s(1),1];
-            
-        else
-            if impixel(F,sFormer(1),sFormer(2)) <= 120
-                s=[sFormer(2),sFormer(1),1];
-            else
-                hFig =imshow(F);
-                title('No valid seed point in this frame. Please select a new seed point');
-                s=round(ginput(1));
-                % check the gray value of the seed point
-%                 while any(impixel(F,s(1),s(2))> 120)
-%                     warning(['The selected pixel is too bright!Please select another ', ...
-%                         'seed point inside the BLACK PART OF THE PUPIL!']);
-%                     hFig = imshow(F);
-%                     title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
-%                     s=round(ginput(1));
-%                     delete(hFig);
-%                 end
-%                 delete(hFig);
-                sFormer=s;
-                s=[s(2),s(1),1];
-                
-            end
-        end
-    end
+    [s,sFormer,seedPoints] =checkSeedPoints(F,seedPoints,sThres,sFormer);
     
     % use regionGrowing to segment the pupil
     % P is the detected pupil boundary, and J is a binary image of the pupil
@@ -106,7 +58,7 @@ while hasFrame(v)
     % difference(0.2*rmin) from the radius in the former frame,
     % use elliptical fit
     if (length(r)>1) || (length(r) == 0) ||...
-            (length(r)==1 && n==1 && abs(r-rmin)>(rmin*0.2)) ||...
+            (length(r)==1 && n==1 && abs(r-pupilSize/2)>(rmin*0.5)) ||...
             (length(r)==1 && n>1 && abs(r-R(n-1))>(rmin*0.2))
         
         p=regionprops(FI,'Centroid','MajorAxisLength','MinorAxisLength','Orientation','PixelList');
@@ -117,7 +69,7 @@ while hasFrame(v)
         b = p.MinorAxisLength/2;
         angle = p.Orientation;
         steps = 50;
-        R(n)=a;
+        R(n,:)=[n,a];
         % show the frame with fitted ellipse and seed point on it and
         % save the image into the selected folder
         if doPlot
@@ -129,43 +81,47 @@ while hasFrame(v)
             cosalpha = cos(alpha);
             X = x + (a * cosalpha * cosbeta - b * sinalpha * sinbeta);
             Y = y + (a * cosalpha * sinbeta + b * sinalpha * cosbeta);
-            imshow(F, 'Parent', currAxes);            
-            hold on;
+            imshow(F,'Border','tight', 'Parent', currAxes);
+            hold on
             plot(s(2),s(1),'r+')
-            plot(X,Y,'r','LineWidth',0.01)
-            time = datestr(v.CurrentTime/86400, 'HH:MM:SS.FFF');
-            str=sprintf([time, ' a=%f, b=%f'],a,b);
-            title(str);
-            hold off
-            filename=num2str(v.CurrentTime);
+            plot(X,Y,'r','LineWidth',2.5)
+            str=sprintf('frame %d, r=%f',n,a);
+            annotation('textbox',[0.05,0.85,0.1,0.1],'string',str,...
+                'Color','r','FontWeight','bold','LineStyle','none','FontSize',20);
+            filename=sprintf('frame %d.jpg',n);
             Iname=fullfile(folderPath,filename);
-            saveas(gcf,Iname,'jpg');
+            Fsave=getframe(hFigVid);
+            imwrite(Fsave.cdata,Iname);
+            hold off
         end
         
     else
-        R(n)=r(1);
+        R(n,:)=[n,r(1)];
         
         % show the frame with fitted circle and seed point on it and
         % save the image into the selected folder
         if doPlot
-            imshow(F, 'Parent', currAxes);
-            h=viscircles(o,r,'LineWidth',0.001);
-            hold on;
+            imshow(F,'Border','tight', 'Parent', currAxes);
+            hold on
+            h=viscircles(o,r,'LineWidth',2.5);
             plot(s(2),s(1),'r+')
-            time = datestr(v.CurrentTime/86400, 'HH:MM:SS.FFF');
-            str=sprintf([time ', r=%f'],r);
-            title(str);
-            hold off
-            filename=num2str(v.CurrentTime);
+            str=sprintf('frame %d, r=%f',n,r);
+            annotation('textbox',[0.05,0.85,0.1,0.1],'string',str,'Color','r','FontWeight','bold','LineStyle','none','FontSize',20);
+            filename=sprintf('frame %d.jpg',n);
             Iname=fullfile(folderPath,filename);
-            saveas(gcf,Iname,'jpg');
+            Fsave=getframe(hFigVid);
+            imwrite(Fsave.cdata,Iname);
+            hold off
         end
     end
 end
 
+if doPlot
+    delete(hFigVid)
+end
 % save the matrix of Radii as a text file
 Tname = fullfile(folderPath,'Pupil Radii- fitted by ellipse and circle.txt');
-dlmwrite(Tname,R)
+dlmwrite(Tname,R,'newline','pc','delimiter','\t');
 
 % plot the variation of the pupil radius and save it as a jpg figure.
 if doPlot
@@ -177,6 +133,4 @@ if doPlot
     Pname = fullfile(folderPath,'Variation of Pupil Radius - fitted by circle and ellipse' );
     saveas(gcf,Pname,'jpg');
     hold off
-end
-
 end

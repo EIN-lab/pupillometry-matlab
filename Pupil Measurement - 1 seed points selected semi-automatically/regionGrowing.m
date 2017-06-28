@@ -214,6 +214,9 @@ for cSli = 1:nSli
     end
 end
 
+end
+
+
 % % text output with final number of vertices
 % disp(['RegionGrowing Ending: Found ' num2str(length(find(J)))...
 %       ' pixels within the threshold range (' num2str(size(P, 1))...

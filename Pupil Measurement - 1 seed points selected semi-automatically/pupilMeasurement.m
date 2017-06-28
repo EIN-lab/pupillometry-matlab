@@ -12,6 +12,7 @@ function R = pupilMeasurement(varargin)
 % Inputs:
 %       fitMethod: input 1 - circular fit(if pupils are almost circular);
 %                  input 2 - circular+elliptical fit.
+%                  input 3 - elliptical fit only
 %                  Default value - 2
 %
 %       doPlot: input false - only save the radii in a txt file.
@@ -56,6 +57,7 @@ function R = pupilMeasurement(varargin)
 %% Check all the input arguments
 close all
 
+% check the number of input arguments and manage input property/value pairs
 if nargin > 8
     error('Wrong number of input arguments!')
 end
@@ -66,7 +68,6 @@ pValues = {2;false;18;5;[];[];[];[]};
 dflts = cell2struct(pValues, pNames);
 % Parse function input arguments
 params = parsepropval2(dflts, varargin{:});
-
 fitMethod = params.fitMethod;
 doPlot = params.doPlot;
 thresVal = params.thresVal;
@@ -76,19 +77,22 @@ fileSavePath = params.fileSavePath;
 startFrame = params.startFrame;
 pupilSize = params.pupilSize;
 
-%select videos%
+% select video(s)
 if isempty(videoPath)
     [vname,vpath] = uigetfile({'*.mp4;*.m4v;*.avi;*.mov;*.mj2;*.mpg;*.wmv;*.asf;*.asx'},...
         'Please select the video file(s)','multiselect','on');
 end
 NumberofVideos = numel(cellstr(vname));
 
-%check the fitMethod
-if fitMethod ~= 1 && fitMethod ~= 2
+% check the fitMethod
+if fitMethod ~= 1 && fitMethod ~= 2 && fitMethod ~= 3
     error('Wrong input of fitMethod!')
 end
 
-%check the start frame
+% check or select the start frame
+% When there is no input for startFrame, the algorithm will select the
+% first frame of the video,whose maximal gray value is higher than 200, as
+% the startFrame.
 if isempty(startFrame)
     if NumberofVideos == 1
         videoPath = fullfile(vpath,vname);
@@ -105,13 +109,19 @@ if isempty(startFrame)
             break
         end
     end
-elseif round(startFrame) ~= startFrame
-    error('Wrong input of startFrame! It should be an integer!')
-    % When there is no input for startFrame, the algorithm will select the
-    % first frame of the video,whose maximal gray value is higher than 100, as
-    % the startFrame.
 else
-    startFrame = startFrame
+    if round(startFrame) ~= startFrame
+        error('Wrong input of startFrame! It should be an integer!')
+    else
+        startFrame = startFrame;
+        if NumberofVideos == 1
+            videoPath = fullfile(vpath,vname);
+        else
+            videoPath = fullfile(vpath,vname{1});
+        end
+        v=VideoReader(videoPath);
+        F=rgb2gray(read(v,startFrame));
+    end
 end
 
 % check the frame interval
@@ -119,11 +129,13 @@ if round(frameInterval) ~= frameInterval
     error('Wrong input of frameInterval! It should be an integer!')
 end
 
-%check the pupilSize
+% check the pupilSize
+% If the puilSize is empty, the user will be asked to draw a line across
+% the pupil as the pupil diameter.
 if isempty(pupilSize)
     figure,imshow(F);
     hold on;
-    title('Please draw the longest diameter across the pupil by clicking on the image, the end point can be slected by right-click. ');
+    title('Please draw the longest diameter across the pupil by clicking on the edge of the pupil, the end point can be slected by right-click. ');
     [cx,cy,c]=improfile;
     lengthc = length(c);
     h = imdistline(gca,[cx(1),cx(lengthc)],[cy(1),cy(lengthc)]);
@@ -155,7 +167,8 @@ end
 
 %% Start to process the videos
 
-% use the point having the lowest grayvalue on the line as the first seed point
+% Seed Point Selection : use the point having the lowest grayvalue on the
+% drawn line as the first seed point.
 [minc,indexc]=min(c);
 if pupilSize > 20
     sFirst=[round(cx(indexc)),round(cy(indexc)),1];
@@ -164,8 +177,10 @@ else
     sFirst=[cx2,cy2];
 end
 
-% find the threshould grayvalue for the seed point
+% find the threshould grayvalue sThres for the seed point
 K=1;
+% delete points whose grayvalues are higher than 150 (i.e., points inside
+% the iris or corneal reflection part).
 for k=1:length(c)
     if c(k)<150
         cNew(K) = c(k); K=K+1;
@@ -175,35 +190,45 @@ sThres=prctile(cNew,50);
 
 % Check the fit method and fit the pupil images
 if NumberofVideos == 1   % only one video needed to be processed
-    if fitMethod == 1   %circular fit only
+    if fitMethod == 1   % circular fit only
         R=circularFit(v,sFirst,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
-    elseif fitMethod == 2
+    elseif fitMethod == 2 % circular + elliptical fit
         R=circular_ellipticalFit(v,sFirst,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
+    elseif fitMethod == 3 % elliptical fit only
+        R=ellipticalFit(v,sFirst,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
     end
 else   % more than 1 video needed to be processed
     Rcell = cell(1,NumberofVideos);
-    if fitMethod == 1   %circular fit only
+    if fitMethod == 1   % circular fit only
         for j=1:NumberofVideos
             videoPath = fullfile(vpath,vname{j});
             v=VideoReader(videoPath);
             Rcell{j}=circularFit(v,sFirst,sThres,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
-        end
+        end    
         
-    elseif fitMethod == 2
+    elseif fitMethod == 2  % circular + elliptical fit
         for j=1:NumberofVideos
             videoPath = fullfile(vpath,vname{j});
             v=VideoReader(videoPath);
             Rcell{j}=circular_ellipticalFit(v,sFirst,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
-
+        end       
+        
+    elseif fitMethod == 3  % elliptical fit only
+        for j=1:NumberofVideos
+            videoPath = fullfile(vpath,vname{j});
+            v=VideoReader(videoPath);
+            Rcell{j}=ellipticalFit(v,sFirst,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
         end
     end
     R=Rcell;
 end
 
-% disp(['pupilMeasurement Ending ']);
-% disp(['Number of Processed Videos :' num2str(NumberofVideos)]);
-% % disp(['Frame Interval : 'num2str(frameInterval)])
-% disp(['Fit Method :' FitMethod]);
-% % disp(['Threshold of the Region Growing Segmentation :'num2str(thresVal)]);
+% save the matrix or cell of R as a .mat file
+radiiMat=fullfile(fileSavePath,'radii.mat');
+save(radiiMat,'R');
+
+end
+
+
     
     

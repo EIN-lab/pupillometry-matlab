@@ -12,6 +12,7 @@ function R = pupilMeasurement(varargin)
 % Inputs:
 %       fitMethod: input 1 - circular fit(if pupils are almost circular);
 %                  input 2 - circular+elliptical fit.
+%                  input 3 - elliptical fit only
 %                  Default value - 2
 %
 %       doPlot: input false - only save the radii in a txt file.
@@ -84,7 +85,7 @@ end
 NumberofVideos = numel(cellstr(videoPath));
 
 %check the fitMethod
-if fitMethod ~= 1 && fitMethod ~= 2
+if fitMethod ~= 1 && fitMethod ~= 2 && fitMethod ~= 3
     error('Wrong input of fitMethod!')
 end
 
@@ -97,7 +98,7 @@ end
 
 % Read video frames while available
 v=VideoReader(sourcePath);
-    
+
 % Find the start frame
 if isempty(startFrame)
     while hasFrame(v)
@@ -124,6 +125,7 @@ else
     
     % Set video start time
     v.CurrentTime = startFrame*v.FrameRate;
+    F=rgb2gray(readFrame(v));
 end
 
 % check the frame interval
@@ -131,16 +133,19 @@ if round(frameInterval) ~= frameInterval
     error('Wrong input of frameInterval! It should be an integer!')
 end
 
-%check the pupilSize
+% check the pupilSize
+% If the puilSize is empty, the user will be asked to draw a line across
+% the pupil as the pupil diameter.
 if isempty(pupilSize)
-    figure,imshow(F);
-    hold on;
-    title('Please draw the longest diameter across the pupil');
-    h=imline;
-    pos=getPosition(h);
-    h = imdistline(gca,pos(:,1),pos(:,2));
+    hFig=figure;imshow(F);
+    title('Please draw the longest diameter across the pupil by clicking on the edge of the pupil, the end point can be slected by right-click. ');
+    [cx,cy,c]=improfile;
+    lengthc = length(c);
+    h = imdistline(gca,[cx(1),cx(lengthc)],[cy(1),cy(lengthc)]);
     pupilSize=getDistance(h);
-    close
+    delete(hFig);
+else
+    pupilSize = pupilSize;
 end
 
 % check the threshould value for the region growing segmentation
@@ -162,14 +167,22 @@ end
 
 %% Start to process the videos
 
+% find the threshould grayvalue sThres for the seed point
+% delete points whose grayvalues are higher than 150 (i.e., points inside
+% the iris or corneal reflection part).
+for k=length(c):-1:1
+    if c(k)>150
+        c(k) = []; 
+    end
+end
+sThres=prctile(c,95);
+
 %check the size of eye and select the seed point s for regionGrowing
 %segmentation
 if pupilSize <= 20
     F=imresize(medfilt2(F),2);
 end
-% hFig=imshow(F);
-imshow(F)
-hold on
+hFig=imshow(F);
 
 % title({'Please select 4 seed points inside the BLACK PART OF THE PUPIL.',...
 %         'The seed points should be located as far away from each other as possible.',...
@@ -178,37 +191,46 @@ title(sprintf(['Please select 4 seed points inside the BLACK PART OF THE PUPIL.\
     'The seed points should be located as far away from each other as possible. \n', ...
     'The best selection would be the top, bottom, left and right sides of the pupil.']))
 seedPoints=round(ginput(4));
-close
+delete(hFig);
 
 % Check the fit method and fit the pupil images
 if NumberofVideos == 1   % only one video needed to be processed
     if fitMethod == 1   %circular fit only
-        R=circularFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
-    elseif fitMethod == 2
-        R=circular_ellipticalFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
+        R=circularFit(v,seedPoints,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
+    elseif fitMethod == 2  % circular + elliptical fit only
+        R=circular_ellipticalFit(v,seedPoints,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
+    elseif fitMethod == 3  % elliptical fit only
+        R=ellipticalFit(v,seedPoints,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
     end
+    
 else   % more than 1 video needed to be processed
     Rcell = cell(1,NumberofVideos);
     if fitMethod == 1   %circular fit only
         for j=1:NumberofVideos
             videoPath = fullfile(vpath,vname{j});
             v=VideoReader(videoPath);
-            Rcell{j}=circularFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
+            Rcell{j}=circularFit(v,seedPoints,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
         end
 
     elseif fitMethod == 2
         for j=1:NumberofVideos
             videoPath = fullfile(vpath,vname{j});
             v=VideoReader(videoPath);
-            Rcell{j}=circular_ellipticalFit(v,seedPoints,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
-
+            Rcell{j}=circular_ellipticalFit(v,seedPoints,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
+        end
+    elseif fitMethod == 3
+        for j=1:NumberofVideos
+            videoPath = fullfile(vpath,vname{j});
+            v=VideoReader(videoPath);
+            Rcell{j}=ellipticalFit(v,seedPoints,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
         end
     end
     R=Rcell;
 end
+% save the matrix or cell of R as a .mat file
+radiiMat=fullfile(fileSavePath,'radii.mat');
+save(radiiMat,'R');
+end
 
-% disp(['pupilMeasurement Ending ']);
-% disp(['Number of Processed Videos :' num2str(NumberofVideos)]);
-% % disp(['Frame Interval : 'num2str(frameInterval)])
-% disp(['Fit Method :' FitMethod]);
-% % disp(['Threshold of the Region Growing Segmentation :'num2str(thresVal)]);
+
+
