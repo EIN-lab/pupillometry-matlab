@@ -79,7 +79,7 @@ if isempty(videoPath)
     if vname == 0
         error('Please select a file to load')
     end
-    videoPath = fullfile(vname, vpath);
+    videoPath = fullfile(vpath, vname);
 end
 
 NumberofVideos = numel(cellstr(videoPath));
