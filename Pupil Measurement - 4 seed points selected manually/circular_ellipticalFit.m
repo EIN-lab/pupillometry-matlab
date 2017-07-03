@@ -29,6 +29,15 @@ while hasFrame(v)
     
     % Increment video reader
     v.CurrentTime = min(v.CurrentTime + (frameInterval/v.FrameRate), v.Duration);
+    if v.CurrentTime == v.Duration
+        if ~exist('trail')
+        v.CurrentTime = v.Duration;
+        trail = 2;
+        else
+            break
+        end
+    end
+    
     frameNum = round(v.CurrentTime * v.FrameRate);
     F=medfilt2(rgb2gray(F));
     if pupilSize < 20
@@ -48,8 +57,8 @@ while hasFrame(v)
     
     % select one of the input seed points which is located inside the black
     % part of the pupil
-    %     [s,sFormer,seedPoints] =checkSeedPoints(F,seedPoints,sThres,sFormer);
-    [s,sFormer,seedPoints,sThres,aveGVold] = checkSeedPoints(F,seedPoints,sThres,sFormer,aveGVold)
+    [s,sFormer,seedPoints,sThres,aveGVold] = checkSeedPoints(F,seedPoints,...
+        sThres,sFormer,aveGVold);
     if isempty(s)
         continue
     end
@@ -115,7 +124,6 @@ while hasFrame(v)
             hold on
             plot(s(2),s(1),'r+')
             plot(X,Y,'r','LineWidth',2.5)
-            %             annotation('textbox',[0.05,0.85,0.1,0.1],'string',str,'Color','r','FontWeight','bold','LineStyle','none','FontSize',20);
             filename=sprintf('frame %d.jpg',frameNum);
             Iname=fullfile(folderPath,filename);
             Fsave=getframe(hFigVid);
@@ -138,7 +146,6 @@ while hasFrame(v)
             hold on
             h=viscircles(o,r,'LineWidth',2.5);
             plot(s(2),s(1),'r+')
-            %             annotation('textbox',[0.05,0.85,0.1,0.1],'string',str,'Color','r','FontWeight','bold','LineStyle','none','FontSize',20);
             filename=sprintf('frame %d.jpg',frameNum);
             Iname=fullfile(folderPath,filename);
             Fsave=getframe(hFigVid);
@@ -165,4 +172,6 @@ if doPlot
     Pname = fullfile(folderPath,'Variation of Pupil Radius - fitted by circle and ellipse' );
     saveas(gcf,Pname,'jpg');
     hold off
+end
+
 end

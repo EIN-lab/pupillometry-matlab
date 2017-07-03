@@ -155,7 +155,7 @@ end
 
 % select the folder to save all the processed images and radii text
 if isempty(fileSavePath)
-     fileSavePath=uigetdir(fileparts(videoPath),'Please create or select a folder to save the processed images and radii text');
+     fileSavePath=uigetdir(vpath,'Please create or select a folder to save the processed images and radii text');
 end
 
 % check if the user want to save all the images
@@ -197,7 +197,7 @@ delete(hFig);
 if NumberofVideos == 1   % only one video needed to be processed
     if fitMethod == 1   %circular fit only
         R=circularFit(v,seedPoints,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
-    elseif fitMethod == 2  % circular + elliptical fit only
+    elseif fitMethod == 2  % circular + elliptical fit
         R=circular_ellipticalFit(v,seedPoints,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
     elseif fitMethod == 3  % elliptical fit only
         R=ellipticalFit(v,seedPoints,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
