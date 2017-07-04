@@ -26,7 +26,8 @@ while hasFrame(v)
     message = strcat('processed video : ',v.name);
     progbar(v.CurrentTime/v.Duration,'msg',message);
     F=readFrame(v);
-    
+    frameNum = round(v.CurrentTime * v.FrameRate);
+	
     % Increment video reader
     v.CurrentTime = min(v.CurrentTime + (frameInterval/v.FrameRate), v.Duration);
     if v.CurrentTime == v.Duration
@@ -38,7 +39,7 @@ while hasFrame(v)
         end
     end
     
-    frameNum = round(v.CurrentTime * v.FrameRate);
+    
     F=medfilt2(rgb2gray(F));
     if pupilSize < 20
         F = imresize(F, 2);
