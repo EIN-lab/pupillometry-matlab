@@ -3,9 +3,14 @@ function [s,sFormer,seedPoints,sThres,aveGVold] = checkSeedPoints(F,seedPoints,s
 % sThres on image F.
 
 s=[];
+% the gray-value threshould for seed points, sThres is varied with the
+% average gray value on current frame.
 aveGVnew = mean(mean(F));
 sThres = sThres + (aveGVnew - aveGVold);
 aveGVold = aveGVnew;
+
+% % fixed sThres
+% sThres = 60;
 
 for j=1:size(seedPoints,1)
     val(j) = min(impixel(F,seedPoints(j,1),seedPoints(j,2)));

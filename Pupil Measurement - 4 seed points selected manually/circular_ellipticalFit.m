@@ -87,11 +87,11 @@ while hasFrame(v)
     % difference(0.2*rmin) from the radius in the former frame,
     % use elliptical fit
     if frameInterval <=10
-        Rdiff = rmin*0.2;
+        Rdiff = rmin*0.3;
     elseif 10 < frameInterval <= 20
-        Rdiff = rmin*0.4;
+        Rdiff = rmin*0.5;
     elseif 20 < frameInterval
-        Rdiff = rmin*0.8;
+        Rdiff = rmin*0.7;
     end
     if (length(r)>1) || (length(r) == 0) ||...
             (length(r)==1 && n==1 && abs(r-pupilSize/2)>(rmin*0.5)) ||...

@@ -124,7 +124,7 @@ else
     end
     
     % Set video start time
-    v.CurrentTime = startFrame*v.FrameRate;
+    v.CurrentTime = startFrame/v.FrameRate;
     F=rgb2gray(readFrame(v));
 end
 
