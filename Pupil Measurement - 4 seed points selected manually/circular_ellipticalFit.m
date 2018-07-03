@@ -27,7 +27,7 @@ while hasFrame(v)
     progbar(v.CurrentTime/v.Duration,'msg',message);
     F=readFrame(v);
     frameNum = round(v.CurrentTime * v.FrameRate);
-	
+
     % Increment video reader
     v.CurrentTime = min(v.CurrentTime + (frameInterval/v.FrameRate), v.Duration);
     if v.CurrentTime == v.Duration
@@ -38,24 +38,26 @@ while hasFrame(v)
             break
         end
     end
-    
-    
+
+    %adjust contrast
+    F = imadjust(F, [0,0.5], [0, 1]);
+
     F=medfilt2(rgb2gray(F));
     if pupilSize < 20
         F = imresize(F, 2);
     end
-    
+
     if n == 0
     aveGVold = mean(mean(F));
     end
-    
+
     S=size(F);
     if S(2) > 300
         fontsize = 20;
     else
         fontsize = 10;
     end
-    
+
     % select one of the input seed points which is located inside the black
     % part of the pupil
     [s,sFormer,seedPoints,sThres,aveGVold] = checkSeedPoints(F,seedPoints,...
@@ -63,7 +65,7 @@ while hasFrame(v)
     if isempty(s)
         continue
     end
-    
+
     % use regionGrowing to segment the pupil
     % P is the detected pupil boundary, and J is a binary image of the pupil
     [P, J] = regionGrowing(F,s,thresVal);
@@ -81,7 +83,7 @@ while hasFrame(v)
     end
 
     n=n+1;
-    
+
     % if there are more than 1 fitted circle, use elliptical fit, or
     % there is only one fitted circle, but its radius has big
     % difference(0.2*rmin) from the radius in the former frame,
@@ -96,7 +98,7 @@ while hasFrame(v)
     if (length(r)>1) || (length(r) == 0) ||...
             (length(r)==1 && n==1 && abs(r-pupilSize/2)>(rmin*0.5)) ||...
             (length(r)==1 && n>1 && abs(r-R(n-1))>(Rdiff))
-        
+
         p=regionprops(FI,'Centroid','MajorAxisLength','MinorAxisLength','Orientation','PixelList');
         PixList = p.PixelList;
         x = p.Centroid(1);
@@ -130,12 +132,15 @@ while hasFrame(v)
             Fsave=getframe(hFigVid);
             imwrite(Fsave.cdata,Iname);
             hold off
-            
+
         end
-        
+
+        rmin = floor(a*0.9);
+        rmax = ceil(a*1.1);
+
     else
         R(n,:)=[frameNum,r(1)];
-        
+
         % show the frame with fitted circle and seed point on it and
         % save the image into the selected folder
         if doPlot
@@ -153,7 +158,10 @@ while hasFrame(v)
             imwrite(Fsave.cdata,Iname);
             hold off
         end
+        rmin = floor(r(1)*0.9);
+        rmax = ceil(r(1)*1.1);
     end
+
 end
 
 if doPlot

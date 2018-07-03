@@ -57,7 +57,7 @@ function R = pupilMeasurement(varargin)
 %% Check all the input arguments
 pNames = {'fitMethod', 'doPlot', 'thresVal', 'frameInterval', ...
     'videoPath', 'fileSavePath', 'startFrame', 'pupilSize'};
-pValues = {2, false, 18, 5, [], [], [], []};
+pValues = {2, false, [], 5, [], [], [], []};
 params = cell2struct(pValues, pNames, 2);
 
 % Parse function input arguments
@@ -76,7 +76,7 @@ pupilSize = params.pupilSize;
 if isempty(videoPath)
     [vname, vpath] = uigetfile({'*.mp4;*.m4v;*.avi;*.mov;*.mj2;*.mpg;*.wmv;*.asf;*.asx'},...
         'Please select the video file(s)','multiselect','on');
-    if vname == 0
+    if isnumeric(vname) && vname == 0
         error('Please select a file to load')
     end
     videoPath = fullfile(vpath, vname);
@@ -132,6 +132,9 @@ end
 if round(frameInterval) ~= frameInterval
     error('Wrong input of frameInterval! It should be an integer!')
 end
+
+%% adjust image contrast
+F = imadjust(F, [0,0.5], [0, 1]);
 
 % check the pupilSize
 % If the puilSize is empty, the user will be asked to draw a line across
@@ -192,6 +195,7 @@ title(sprintf(['Please select 4 seed points inside the BLACK PART OF THE PUPIL.\
     'The best selection would be the top, bottom, left and right sides of the pupil.']))
 seedPoints=round(ginput(4));
 delete(hFig);
+pause(.2);
 
 % Check the fit method and fit the pupil images
 if NumberofVideos == 1   % only one video needed to be processed
