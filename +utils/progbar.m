@@ -40,7 +40,7 @@ dflts = cell2struct(pValues, pNames);
 
 % Parse any remaining input arguments
 wngState = warning('off', 'ParsePropVal:UnknownAttr');
-params = parsepropval2(dflts, varargin{:});
+params = utils.parsepropval2(dflts, varargin{:});
 warning(wngState);
 
 % Check that the message isn't too long

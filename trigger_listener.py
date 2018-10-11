@@ -7,20 +7,13 @@ import numpy as np
 from time import sleep
 from picamera import PiCamera
 
+# Import GPIO library
 try:
     import RPi.GPIO as GPIO
 except RuntimeError:
-    print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
+    print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  Try again using 'sudo' to run your script")
 
-# connect data drive
-isMount = os.path.ismount('/home/pi/mnt/finc')
-if not isMount:
-    try:
-        p = call(["mount", "/home/pi/mnt/finc"])
-    except RuntimeError:
-        print("No internet connection!")
-
-# Function definitions
+## Function definitions
 def cam_trigger(channel):
     # Camera recording
     print('Trigger detected on channel %s. Recording...\n'%channel)
@@ -40,6 +33,14 @@ def read_json(fname):
 
     return data
 
+# Connect data drive
+isMount = os.path.ismount('/home/pi/mnt/finc')
+if not isMount:
+    try:
+        p = call(["mount", "/home/pi/mnt/finc"])
+    except RuntimeError:
+        print("Mount failed. Check internet connection and mount point settings")
+
 # Predefined values
 channel = 11
 fname = 'params.json'
@@ -54,7 +55,7 @@ filepath = ''.join((data["paths"]["savepath"], prefix, data["paths"]["filename"]
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-# Create Camera object
+# Create PiCamera object
 camera = PiCamera()
 camera.rotation = 180
 camera.color_effects = (128,128)
@@ -81,7 +82,7 @@ spinner = itertools.cycle(['-', '/', '|', '\\']) # set up spinning "wheel"
 try:
     print("Ready for trigger\n")
     while True:
-        ch_trig = GPIO.wait_for_edge(channel, GPIO.RISING,timeout=10)
+        ch_trig = GPIO.wait_for_edge(channel, GPIO.RISING,timeout=10) # wait for trigger
         sys.stdout.write(spinner.next())  # write the next character
         sys.stdout.flush()                # flush stdout buffer (actual character display)
         sys.stdout.write('\b')            # erase the last written char
