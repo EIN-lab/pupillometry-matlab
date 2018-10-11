@@ -1,5 +1,4 @@
 function R = pupilMeasurement(varargin)
-% Main Algorithm
 % Pupil Detection and Measurement Algorithm for Videos
 %
 % R =pupilMeasurement(fitMethod,doPlot,thresVal,frameInterval,videoPath,fileSavePath,startFrame,pupilSize)
@@ -46,15 +45,16 @@ function R = pupilMeasurement(varargin)
 %                  If the diameter is 20 pixels or less, the frames will be
 %                  defined as small-size images and resized.
 %
-% Output: R -- a 1*n matrix or a 1*h cell which contain the radii of the
-%              pupil in each processd frame, and these radii will also be
-%              saved as a txt file
+% Output:
+%       R:  a 1*n matrix or a 1*h cell which contain the radii of the pupil in
+%           each processed frame, and these radii will also be saved as a txt
+%           file
 %
 %         If doPlot is true, all processed frames will also be saved in
-%         the seleted folder with fitted ellipse or circle shown on .
+%         the selected folder with fitted ellipse or circle shown on.
 
 
-%% Check all the input arguments
+% Check all the input arguments
 pNames = {'fitMethod', 'doPlot', 'thresVal', 'frameInterval', ...
     'videoPath', 'fileSavePath', 'startFrame', 'pupilSize'};
 pValues = {2, false, [], 5, [], [], [], []};
@@ -72,7 +72,7 @@ fileSavePath = params.fileSavePath;
 startFrame = params.startFrame;
 pupilSize = params.pupilSize;
 
-%select videos%
+% Select videos
 if isempty(videoPath)
     [vname, vpath] = uigetfile({'*.mp4;*.m4v;*.avi;*.mov;*.mj2;*.mpg;*.wmv;*.asf;*.asx'},...
         'Please select the video file(s)','multiselect','on');
@@ -84,9 +84,17 @@ end
 
 NumberofVideos = numel(cellstr(videoPath));
 
-%check the fitMethod
-if fitMethod ~= 1 && fitMethod ~= 2 && fitMethod ~= 3
-    error('Wrong input of fitMethod!')
+% Check the fitMethod
+if isfinite(params.fitMethod) || ~isscalar(params.fitMethod)
+    error('''fitMethod'' must be a scalar, finite integer value.')
+end
+
+if ~(floor(params.fitMethod) == params.fitMethod)
+  error('''fitMethod'' must be a scalar, finite integer value.')
+end
+
+if ~any(params.fitMethod == [1, 2, 3])
+    error('''fitMethod'' must be one of [1, 2, 3].')
 end
 
 % Instantiate video reader
@@ -116,27 +124,26 @@ else
     if ~isnum || ~isscal
         error('startFrame property must be scalar integer')
     end
-    
-    isint = round(startFrame) == startFrame;
-    if ~isint
+
+    if ~(floor(startFrame) == startFrame)
         warning('startFrame property should be an integer.')
         startFrame = round(startFrame);
     end
-    
+
     % Set video start time
     v.CurrentTime = startFrame/v.FrameRate;
     F=rgb2gray(readFrame(v));
 end
 
-% check the frame interval
-if round(frameInterval) ~= frameInterval
-    error('Wrong input of frameInterval! It should be an integer!')
+% Check the frame interval
+if ~(floor(params.frameInterval) == params.frameInterval)
+    error('''frameInterval'' must be an integer value.')
 end
 
-%% adjust image contrast
+% Adjust image contrast
 F = imadjust(F, [0,0.5], [0, 1]);
 
-% check the pupilSize
+% Check the pupilSize
 % If the puilSize is empty, the user will be asked to draw a line across
 % the pupil as the pupil diameter.
 if isempty(pupilSize)
@@ -151,22 +158,20 @@ else
     pupilSize = pupilSize;
 end
 
-% check the threshould value for the region growing segmentation
-if round(thresVal) ~= thresVal
-    error('Wrong input of thresVal! It should be an integer!')
+% Check the threshould value for the region growing segmentation
+if floor(params.thresVal) ~= params.thresVal
+    error('''threshVal'' must be an integer value.')
 end
 
-% select the folder to save all the processed images and radii text
+% Select the folder to save all the processed images and radii text
 if isempty(fileSavePath)
      fileSavePath=uigetdir(vpath,'Please create or select a folder to save the processed images and radii text');
 end
 
-% check if the user want to save all the images
-if doPlot ~= true && doPlot ~= false
-    doPlot = 0;
-    error('Wrong input of doPlot! It should be either true or false!')
+% Check if the user want to save all the images
+if ~islogical(params.doPlot)
+    error('Wrong input of doPlot. It should be either true or false.')
 end
-
 
 %% Start to process the videos
 
@@ -175,7 +180,7 @@ end
 % the iris or corneal reflection part).
 for k=length(c):-1:1
     if c(k)>150
-        c(k) = []; 
+        c(k) = [];
     end
 end
 sThres=prctile(c,95);
@@ -206,7 +211,7 @@ if NumberofVideos == 1   % only one video needed to be processed
     elseif fitMethod == 3  % elliptical fit only
         R=ellipticalFit(v,seedPoints,sThres,startFrame,frameInterval,pupilSize,thresVal,fileSavePath,doPlot);
     end
-    
+
 else   % more than 1 video needed to be processed
     Rcell = cell(1,NumberofVideos);
     if fitMethod == 1   %circular fit only
@@ -235,6 +240,3 @@ end
 radiiMat=fullfile(fileSavePath,'radii.mat');
 save(radiiMat,'R');
 end
-
-
-
