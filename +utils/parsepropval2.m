@@ -19,7 +19,7 @@ function prop = parsepropval2(prop, varargin)
 %
 %  returns a structure with the same field names as params, filled in
 %  according to the property/value pairs and structures passed in.
-%    ans = 
+%    ans =
 %        FileName: 'mydata.txt'
 %        FileType: 'binary'
 %        Data: [4 5 6]
@@ -53,43 +53,43 @@ arg_index = 1;
 % Loop through the arguments
 nVarArgs = numel(varargin);
 while arg_index <= nVarArgs
-    
+
 	arg = varargin{arg_index};
-    
+
 	if ischar(arg)
-        
+
         % Check that we have an attribute/value pair
         isLast = isequal(arg_index, nVarArgs);
         if isLast
             error('ParsePropVal:MissingValue', ['No value was ' ...
                 'specified for the attribute "%s"'], arg)
         end
-        
+
         prop_index = match_property(arg, properties);
         if ~isempty(prop_index)
             prop.(properties{prop_index}) = varargin{arg_index + 1};
         end
 		arg_index = arg_index + 2;
-        
+
 	elseif isstruct(arg) || isobject(arg)
-        
+
 		arg_fn = fieldnames(arg);
         for i = 1:length(arg_fn)
-            
+
             prop_index = match_property(arg_fn{i}, properties);
             if ~isempty(prop_index)
                 prop.(properties{prop_index}) = arg.(arg_fn{i});
             end
-            
+
         end
-        
+
 		arg_index = arg_index + 1;
-        
+
 	else
 		error('ParsePropVal:BadArgFormat', ['Properties must be ' ...
             'specified by property/value pairs, structures, or objects.'])
 	end
-    
+
 end
 
 end
@@ -97,7 +97,7 @@ end
 % ====================================================================== %
 
 function prop_index = match_property(arg, properties)
-    
+
 prop_index = find(strcmpi(arg, properties));
 if isempty(prop_index)
 	prop_index = find(strncmpi(arg, properties, length(arg)));
