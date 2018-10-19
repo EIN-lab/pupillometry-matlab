@@ -2,16 +2,16 @@ function [s,sFormer,seedPoints,sThres,aveGVold] = checkSeedPoints(F,seedPoints,s
 % check or select a valid seed point whose gray value is lower than the
 % sThres on image F.
 
-s=[];
+s = [];
+val = [];
+
 % the gray-value threshould for seed points, sThres is varied with the
 % average gray value on current frame.
 aveGVnew = mean(mean(F));
 sThres = sThres + (aveGVnew - aveGVold);
 aveGVold = aveGVnew;
 
-% % fixed sThres
-% sThres = 60;
-
+% Make sure we have a valid seed point
 for j=1:size(seedPoints,1)
     val(j) = min(impixel(F,seedPoints(j,1),seedPoints(j,2)));
 end

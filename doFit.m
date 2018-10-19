@@ -1,4 +1,4 @@
-function R=doFit(v,pupilSize, seedPoints,sThres,params)
+function R = doFit(v, pupilSize, seedPoints, sThres, params)
 % circular+elliptical fit algorithm for the input video
 
 fitMethod = params.fitMethod;
@@ -8,16 +8,18 @@ frameInterval = params.frameInterval;
 fileSavePath = params.fileSavePath;
 
 % creat a new folder to save the radii text and the processed frames
-[vpath,vname] = fileparts(v.Name);
-mkdir(fileSavePath,vname);
-folderPath=fullfile(fileSavePath,vname);
-sFormer=[];
-n=0;
+[~, vname] = fileparts(v.Name);
+mkdir(fileSavePath, vname);
+folderPath = fullfile(fileSavePath, vname);
+sFormer = [];
+n = 0;
+endReached = false;
 
 % initialize axes if necessary
 if doPlot
     hFigVid = figure;
-    currAxes = axes;
+    axRad = axes('Parent', hFigVid);
+    plotExist = false;
 end
 
 %
@@ -26,7 +28,6 @@ if rmin <10
     rmin = 10;
 end
 rmax = rmin*3;
-
 
 while hasFrame(v)
     message = strcat('processed video : ',v.name);
@@ -37,16 +38,13 @@ while hasFrame(v)
     % Increment video reader
     v.CurrentTime = min(v.CurrentTime + (frameInterval/v.FrameRate), v.Duration);
     if v.CurrentTime == v.Duration
-        if ~exist('trail')
+        if ~endReached
             v.CurrentTime = v.Duration;
-            trail = 2;
+            endReached = true;
         else
             break
         end
     end
-    
-    %adjust contrast
-    F = imadjust(F, [0,0.5], [0, 1]);
     
     F = medfilt2(rgb2gray(F));
     if pupilSize < 20
@@ -64,6 +62,9 @@ while hasFrame(v)
         fontsize = 10;
     end
     
+    % adjust contrast
+    F = imadjust(F);
+    
     % select one of the input seed points which is located inside the black
     % part of the pupil
     [s,sFormer,seedPoints,sThres,aveGVold] = checkSeedPoints(F,seedPoints,...
@@ -72,28 +73,31 @@ while hasFrame(v)
         continue
     end
     
-    % use regionGrowing to segment the pupil
-    % P is the detected pupil boundary, and J is a binary image of the pupil
-    [P, J] = regionGrowing(F,s,thresVal);
-    % opening operation and find the boundary of the binary image J
-    B=bwboundaries(J);
-    BX =B{1}(:, 2);
-    BY =B{1}(:, 1);
-    %expand the concave boundary and fill inside the new boundary
-    k=convhull(BX,BY);
-    FI = poly2mask(BX(k), BY(k),S(1) ,S(2)); %filled binary image
-    % find the origin and radius of the pupil
-    [o,r]=imfindcircles(FI,[rmin,rmax],'ObjectPolarity','bright');
+    % Use regionGrowing to segment the pupil P is the detected pupil
+    % boundary, and FI is a binary image of the pupil
+    [~, FI] = regionGrowing(F,s,thresVal);
+
+    % Find the origin and radius of the pupil
+    [~, r] = imfindcircles(FI, [rmin, rmax],'ObjectPolarity','bright');
+    
+    % Try double rmax, if nothing identified
     if isempty(r)
-        [o,r]=imfindcircles(FI,[rmax,rmax*2],'ObjectPolarity','bright');
+        rmin = rmax;
+        rmax = 2*rmax;
+        [~, r] = imfindcircles(FI, [rmin, rmax], 'ObjectPolarity', ...
+            'bright');
     end
     
     n=n+1;
     
-    % if there are more than 1 fitted circle, use elliptical fit, or
-    % there is only one fitted circle, but its radius has big
-    % difference(0.2*rmin) from the radius in the former frame,
-    % use elliptical fit
+    % Cases where imfindcircles didn't identify any circle
+    if isempty(r) && n == 1
+        throwError(1, 'value', rmax);
+    end
+
+    % if there are more than 1 fitted circle, use elliptical fit, or if
+    % there is only one fitted circle, but its radius has big difference
+    % (0.2*rmin) from the radius in the former frame, use elliptical fit
     if frameInterval <=10
         Rdiff = rmin*0.3;
     elseif 10 < frameInterval <= 20
@@ -114,9 +118,9 @@ while hasFrame(v)
         rmin = floor(a*0.9);
         rmax = ceil(a*1.1);
         
-    else %circular fit
+    else % circular fit
         if nCircle > 1
-            warning('Multiple circles fitted, skipping');
+            warning('Multiple circles fitted, using first');
         end
         
         R(n,:)=[frameNum,r(1)];
@@ -147,24 +151,16 @@ while hasFrame(v)
         
     end
     
-    if doPlot
-        delete(hFigVid)
-    end
-    
-    % save the matrix of Radii as a text file
-    Tname = fullfile(folderPath,'Pupil Radii.csv');
-    dlmwrite(Tname,R,'newline','pc','delimiter',';');
-    
-    % plot the variation of the pupil radius and save it as a jpg figure.
-    if doPlot
-        figure;
-        plot(R(:,1),R(:,2)), hold on;
+    % plot the variation of the pupil radius
+    if doPlot && ~plotExist
+        plotExist = true;
+        plot(axRad, R(:,1),R(:,2))
+        drawnow
         title('Pupil Radius');
         xlabel('frame number');
         ylabel('Pupil Radius/pixel');
-        Pname = fullfile(folderPath,'Pupil Radius' );
-        saveas(gcf,Pname,'jpg');
-        hold off
+    elseif doPlot && plotExist
+        plot(axRad, R(:,1),R(:,2)) % change the line data
+        drawnow
     end
-    
 end

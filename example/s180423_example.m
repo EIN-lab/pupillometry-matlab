@@ -1,6 +1,7 @@
 % Image file
-videoPath = fullfile(utils.get_rootdir,'example\sample_video.mp4');
-
+%videoPath = fullfile(utils.get_rootdir,'example\sample_video.mp4');
+videoPath = fullfile('P:\_Group\Projects\Astrocyte Calcium\Current Milestones\GYS1 knockouts\Awake\Video\WT16.12A', ...
+            'trial1.mp4');
 % Settings
 doPlot = false;
 fileSavePath = 'C:\Users\Kim\Desktop\test\';

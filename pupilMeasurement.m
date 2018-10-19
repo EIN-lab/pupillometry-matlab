@@ -1,7 +1,8 @@
 function R = pupilMeasurement(varargin)
 % Pupil Detection and Measurement Algorithm for Videos
 %
-% R =pupilMeasurement(fitMethod,doPlot,thresVal,frameInterval,videoPath,fileSavePath,startFrame,pupilSize)
+% R = pupilMeasurement(fitMethod, doPlot, thresVal, frameInterval, videoPath,
+% fileSavePath, startFrame, pupilSize)
 %
 % Syntax:
 %   R = pupilMeasurement;
@@ -21,7 +22,7 @@ function R = pupilMeasurement(varargin)
 %               input true - all fitted frames will also be saved
 %               Default value - 0
 %
-%       thresVal: threshould for the region-growing segmentation, which
+%       thresVal: threshold for the region-growing segmentation, which
 %                 stands for the difference of the gray values between the
 %                 pupil and the iris of the eye.Values from 15 to 30 would
 %                 be reasonable for normal cases.
@@ -55,7 +56,7 @@ function R = pupilMeasurement(varargin)
 % Check all the input arguments
 pNames = {'fitMethod', 'spSelect', 'doPlot', 'thresVal', 'frameInterval', ...
     'videoPath', 'fileSavePath', 'startFrame'};
-pValues = {2, 'line', false, [], 5, [], [], []};
+pValues = {2, 'line', false, [], 5, [], [], 1};
 params = cell2struct(pValues, pNames, 2);
 
 % Parse function input arguments
@@ -110,59 +111,33 @@ end
 % Read video frames while available
 v = VideoReader(sourcePath);
 
-% Find the start frame
-if isempty(startFrame)
-    while hasFrame(v)
-        F = rgb2gray(readFrame(v));
-        maxGrayLevel = max(max(F(:)));
-        if maxGrayLevel > 200
-            startFrame = v.CurrentTime*v.FrameRate;
-            break
-        end
-    end
-else
-    % Check startFrame property
-    isnum = isnumeric(startFrame);
-    isscal = isscalar(startFrame);
-    if ~isnum || ~isscal
-        error('startFrame property must be scalar integer')
-    end
-
-    if ~(floor(startFrame) == startFrame)
-        warning('startFrame property should be an integer.')
-        startFrame = round(startFrame);
-    end
-
-    % Set video start time
-    v.CurrentTime = startFrame/v.FrameRate;
-    F=rgb2gray(readFrame(v));
+% Check startFrame property
+isnum = isnumeric(startFrame);
+isscal = isscalar(startFrame);
+if ~isnum || ~isscal
+    error('startFrame property must be scalar integer')
 end
+
+if ~(floor(startFrame) == startFrame)
+    warning('startFrame property should be an integer.')
+    startFrame = round(startFrame);
+end
+
+% Set video start time
+v.CurrentTime = startFrame/v.FrameRate;
+F=rgb2gray(readFrame(v));
+
+% Close video reader
+clearvars v
 
 % Check the frame interval
 if ~(floor(params.frameInterval) == params.frameInterval)
     error('''frameInterval'' must be an integer value.')
 end
 
-% Adjust image contrast
-F = imadjust(F, [0, 0.5], [0, 1]);
-
-% Ask the user to draw a line across the pupil as the pupil diameter.
-hFig = figure; imshow(F);
-title('Please draw the longest diameter across the pupil by clicking on the edge of the pupil, the end point can be slected by right-click. ');
-[cx, cy, c] = improfile;
-lengthc = length(c);
-h = imdistline(gca, [cx(1), cx(lengthc)], [cy(1), cy(lengthc)]);
-pupilSize = getDistance(h);
-delete(hFig);
-
-% Check the threshould value for the region growing segmentation
+% Check the threshold value for the region growing segmentation
 if floor(params.thresVal) ~= params.thresVal
     error('''threshVal'' must be an integer value.')
-end
-
-% Select the folder to save all the processed images and radii text
-if isempty(fileSavePath)
-     fileSavePath = uigetdir(vpath,'Please create or select a folder to save the processed images and radii text');
 end
 
 % Check if the user want to save all the images
@@ -172,23 +147,37 @@ catch
     error('''doPlot'' must be convertible to logical.')
 end
 
-%% Start to process the videos
+% Auto-adjust image contrast
+F = imadjust(F);
 
-% find the threshould grayvalue sThres for the seed point
-% delete points whose grayvalues are higher than 150 (i.e., points inside
-% the iris or corneal reflection part).
-for k = length(c):-1:1
-    if c(k) > 150
-        c(k) = [];
-    end
+% Select the folder to save all the processed images and radii text
+if isempty(fileSavePath)
+     fileSavePath = uigetdir(vpath,'Please create or select a folder to save the processed images and radii text');
 end
-sThresh = prctile(c,95);
+
+% Ask the user to draw a line across the pupil
+hFig = figure; imshow(F);
+
+%% Start to process the videos
 
 switch spSelect
     case 'line'
-        % Seed Point Selection : use the point having the lowest grayvalue on the
+        title('Please draw the longest diameter across the pupil by clicking on the edge of the pupil, the end point can be slected by right-click. ');
+        [cx, cy, c] = improfile;
+        lengthc = length(c);
+        h = imdistline(gca, [cx(1), cx(lengthc)], [cy(1), cy(lengthc)]);
+        pupilSize = getDistance(h);
+        delete(hFig);
+
+        % find the threshold gray value sThres for the seed point
+        % delete points whose gray values are higher than 150 (i.e., points inside
+        % the iris or corneal reflection part).
+        c(c > 150) = [];
+        sThresh = prctile(c, 95);
+
+        % Seed Point Selection : use the point having the lowest gray value on the
         % drawn line as the first seed point.
-        [minc,indexc] = min(c);
+        [~, indexc] = min(c);
         if pupilSize > 20
             seedPoints=[round(cx(indexc)), round(cy(indexc))];
         else
@@ -200,10 +189,7 @@ switch spSelect
     case 'points'
         %check the size of eye and select the seed point s for regionGrowing
         %segmentation
-        if pupilSize <= 20
-            F=imresize(medfilt2(F),2);
-        end
-        hFig=imshow(F);
+
 
         title(sprintf(['Please select 4 seed points inside the BLACK PART OF THE PUPIL.\n', ...
             'The seed points should be located as far away from each other as possible. \n', ...
@@ -221,16 +207,19 @@ end
 if numVideos > 1
     R = cell(1,numVideos);
     for j=1:numVideos
-        videoPath = fullfile(vpath, vname{j});
-        v=VideoReader(videoPath);
-        R{j}=doFit(v, pupilSize, seedPoints, sThresh, params);
+        v = VideoReader(videoPath);
+        R{j} = doFit(v, pupilSize, seedPoints, sThresh, params);
     end
-
 else
-    R=doFit(v, pupilSize, seedPoints, sThresh, params);
+    v = VideoReader(videoPath);
+    R = doFit(v, pupilSize, seedPoints, sThresh, params);
 end
 
 % save the matrix or cell of R as a .mat file
 radiiMat=fullfile(fileSavePath, 'radii.mat');
 save(radiiMat, 'R');
+
+% save the matrix of Radii as a text file
+Tname = fullfile(fileSavePath,'Pupil Radii.csv');
+dlmwrite(Tname,R,'newline','pc','delimiter',';');
 end
