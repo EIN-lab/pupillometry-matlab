@@ -55,8 +55,8 @@ function R = pupilMeasurement(varargin)
 
 % Check all the input arguments
 pNames = {'fitMethod', 'spSelect', 'doPlot', 'thresVal', 'frameInterval', ...
-    'videoPath', 'fileSavePath', 'startFrame'};
-pValues = {2, 'line', false, [], 5, [], [], 1};
+    'videoPath', 'fileSavePath', 'startFrame', 'enhanceContrast'};
+pValues = {2, 'line', false, [], 5, [], [], 1, false};
 params = cell2struct(pValues, pNames, 2);
 
 % Parse function input arguments
@@ -70,6 +70,7 @@ frameInterval = params.frameInterval;
 videoPath = params.videoPath;
 fileSavePath = params.fileSavePath;
 startFrame = params.startFrame;
+enhanceContrast = params.enhanceContrast;
 
 % Select videos
 if isempty(videoPath)
@@ -148,7 +149,9 @@ catch
 end
 
 % Auto-adjust image contrast
-F = imadjust(F);
+if enhanceContrast
+    F = imadjust(F);
+end
 
 % Select the folder to save all the processed images and radii text
 if isempty(fileSavePath)

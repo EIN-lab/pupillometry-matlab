@@ -29,7 +29,7 @@ if isempty(s)
         hFig = figure;
         hAxes = axes;
         imshow(F, 'Parent', hAxes)
-        title('No valid seed point in this frame. Please select a new seed point inside the BLACK PART OF THE PUPIL.');
+        title({'No valid seed point in this frame.', 'Please select a new seed point inside the pupil.'});
         try s=round(ginput(1));
         catch ME
             if (strcmp(ME.message,'Interrupted by figure deletion'))
@@ -41,14 +41,14 @@ if isempty(s)
         end
         delete(hFig);
         %         % check the gray value of the seed point
-        
+
         while any(impixel(F,s(1),s(2)) > sThres)
-            warning(['The selected pixel is too bright!Please select another ', ...
-                'seed point inside the BLACK PART OF THE PUPIL!']);
+            warning(['The selected pixel is too bright. Please select another ', ...
+                'seed point inside the pupil.']);
             hFig = figure;
             hAxes = axes;
             imshow(F, 'Parent', hAxes)
-            title('Please select another seed point inside the BLACK PART OF THE PUPIL!');
+            title({'Please select another seed point inside the pupil.', 'Close window to skip this frame.'});
             try s=round(ginput(1));
             catch ME
                 if (strcmp(ME.message,'Interrupted by figure deletion'))
@@ -64,7 +64,7 @@ if isempty(s)
     elseif ~isempty(sFormer) && any(impixel(F,sFormer(1),sFormer(2)) <= sThres)
         s=sFormer;
     end
-    
+
 %             sFormer=s;
     if ~isempty(s)
     seedPoints = [seedPoints;s(1),s(2)];
@@ -73,4 +73,3 @@ if isempty(s)
     end
 end
 end
-

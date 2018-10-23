@@ -9,7 +9,7 @@ fileSavePath = params.fileSavePath;
 
 % creat a new folder to save the radii text and the processed frames
 [~, vname] = fileparts(v.Name);
-mkdir(fileSavePath, vname);
+%mkdir(fileSavePath, vname);
 folderPath = fullfile(fileSavePath, vname);
 sFormer = [];
 n = 0;
@@ -29,6 +29,9 @@ if rmin <10
 end
 rmax = rmin*3;
 
+% Set start frame
+v.CurrentTime = params.startFrame/v.FrameRate;
+
 while hasFrame(v)
     message = strcat('processed video : ',v.name);
     utils.progbar(v.CurrentTime/v.Duration,'msg',message);
@@ -46,7 +49,12 @@ while hasFrame(v)
         end
     end
 
-    F = medfilt2(rgb2gray(F));
+    % adjust contrast
+    if params.enhanceContrast
+        F = imadjust(rgb2gray(F));
+    end
+
+    F = medfilt2(F);
     if pupilSize < 20
         F = imresize(F, 2);
     end
@@ -61,9 +69,6 @@ while hasFrame(v)
     else
         fontsize = 10;
     end
-
-    % adjust contrast
-    F = imadjust(F);
 
     % select one of the input seed points which is located inside the black
     % part of the pupil
@@ -82,7 +87,6 @@ while hasFrame(v)
 
     % Try double rmax, if nothing identified
     if isempty(r)
-        rmin = rmax;
         rmax = 2*rmax;
         [~, r] = imfindcircles(FI, [rmin, rmax], 'ObjectPolarity', ...
             'bright');
@@ -108,7 +112,7 @@ while hasFrame(v)
 
     nCircle = length(r);
     isBigOrNone = isempty(r) || (n==1 && any(abs(r-pupilSize/2)>(rmin*0.5))); % first frame
-    isBigOrNone = isBigOrNone || (n>1 && abs(r-R(n-1))>(Rdiff)); % subsequent frames
+    isBigOrNone = isBigOrNone || (n>1 && any(abs(r-R(n-1))>(Rdiff))); % subsequent frames
 
     if (nCircle ~= 1 ||  isBigOrNone) && fitMethod ~= 1
 
