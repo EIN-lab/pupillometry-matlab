@@ -34,7 +34,7 @@ while hasFrame(v)
     utils.progbar(v.CurrentTime/v.Duration,'msg',message);
     F=readFrame(v);
     frameNum = round(v.CurrentTime * v.FrameRate);
-    
+
     % Increment video reader
     v.CurrentTime = min(v.CurrentTime + (frameInterval/v.FrameRate), v.Duration);
     if v.CurrentTime == v.Duration
@@ -45,26 +45,26 @@ while hasFrame(v)
             break
         end
     end
-    
+
     F = medfilt2(rgb2gray(F));
     if pupilSize < 20
         F = imresize(F, 2);
     end
-    
+
     if n == 0
         aveGVold = mean(mean(F));
     end
-    
+
     S=size(F);
     if S(2) > 300
         fontsize = 20;
     else
         fontsize = 10;
     end
-    
+
     % adjust contrast
     F = imadjust(F);
-    
+
     % select one of the input seed points which is located inside the black
     % part of the pupil
     [s,sFormer,seedPoints,sThres,aveGVold] = checkSeedPoints(F,seedPoints,...
@@ -72,14 +72,14 @@ while hasFrame(v)
     if isempty(s)
         continue
     end
-    
+
     % Use regionGrowing to segment the pupil P is the detected pupil
     % boundary, and FI is a binary image of the pupil
     [~, FI] = regionGrowing(F,s,thresVal);
 
     % Find the origin and radius of the pupil
     [~, r] = imfindcircles(FI, [rmin, rmax],'ObjectPolarity','bright');
-    
+
     % Try double rmax, if nothing identified
     if isempty(r)
         rmin = rmax;
@@ -87,9 +87,9 @@ while hasFrame(v)
         [~, r] = imfindcircles(FI, [rmin, rmax], 'ObjectPolarity', ...
             'bright');
     end
-    
+
     n=n+1;
-    
+
     % Cases where imfindcircles didn't identify any circle
     if isempty(r) && n == 1
         throwError(1, 'value', rmax);
@@ -105,26 +105,26 @@ while hasFrame(v)
     elseif 20 < frameInterval
         Rdiff = rmin*0.7;
     end
-    
+
     nCircle = length(r);
-    isBigOrNone = (n==1 && abs(r-pupilSize/2)>(rmin*0.5)); % first frame
-    isBigOrNone = isBigOrNone || isempty(r) || (n>1 && abs(r-R(n-1))>(Rdiff)); % subsequent frames
-    
+    isBigOrNone = isempty(r) || (n==1 && any(abs(r-pupilSize/2)>(rmin*0.5))); % first frame
+    isBigOrNone = isBigOrNone || (n>1 && abs(r-R(n-1))>(Rdiff)); % subsequent frames
+
     if (nCircle ~= 1 ||  isBigOrNone) && fitMethod ~= 1
-        
+
         p=regionprops(FI,'Centroid','MajorAxisLength','MinorAxisLength','Orientation');
         a = p.MajorAxisLength/2;
         R(n,:)=[frameNum,a];
         rmin = floor(a*0.9);
         rmax = ceil(a*1.1);
-        
+
     else % circular fit
         if nCircle > 1
             warning('Multiple circles fitted, using first');
         end
-        
+
         R(n,:)=[frameNum,r(1)];
-        
+
         % show the frame with fitted circle and seed point on it and
         % save the image into the selected folder
         %    if doPlot
@@ -144,13 +144,13 @@ while hasFrame(v)
         %    end
         rmin = floor(r(1)*0.9);
         rmax = ceil(r(1)*1.1);
-        
+
         if doPlot
             plotImages(F, frameNum, R, folderPath)
         end
-        
+
     end
-    
+
     % plot the variation of the pupil radius
     if doPlot && ~plotExist
         plotExist = true;
