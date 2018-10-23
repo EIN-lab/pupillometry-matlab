@@ -216,10 +216,11 @@ else
 end
 
 % save the matrix or cell of R as a .mat file
-radiiMat=fullfile(fileSavePath, 'radii.mat');
+[~, fname] = fileparts(v.name);
+radiiMat=fullfile(fileSavePath, [fname, '_radii.mat']);
 save(radiiMat, 'R');
 
 % save the matrix of Radii as a text file
-Tname = fullfile(fileSavePath,'Pupil Radii.csv');
+Tname = fullfile(fileSavePath, [fname, 'Pupil Radii.csv']);
 dlmwrite(Tname,R,'newline','pc','delimiter',';');
 end
