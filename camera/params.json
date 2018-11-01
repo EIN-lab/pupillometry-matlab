@@ -1,0 +1,15 @@
+{
+    "cam_settings": {
+        "width": "1920",
+        "height": "1080",
+        "duration": "30",
+        "fps": "30",
+        "rotation": "180"
+    },
+    "paths": {
+        "savepath": "/home/pi/mnt/finc/_Group/Projects/Astrocyte Calcium/Current Milestones/GYS1 knockouts/Awake/Video/WT16.12A/",
+        "stream": "192.168.1.238",
+        "filename": "video.h264"
+    },
+    "GPIO_pin": "7"
+}
