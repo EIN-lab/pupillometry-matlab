@@ -51,7 +51,7 @@ def read_json(fname):
 
 # Set up GPIO
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(channelTTL, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) # internal pull down
+GPIO.setup(channelTTL, GPIO.IN, pull_up_down=GPIO.PUD_UP) # internal pull down
 GPIO.setup(channelPush, GPIO.IN, pull_up_down=GPIO.PUD_UP) # internal pull up
 
 # Create Camera object
@@ -63,9 +63,9 @@ camera.start_preview(alpha=192) # remove alpha=192 to remove transparency
 sleep(2) # Camera warm-up time
 
 while True:
-    ch_trig = GPIO.wait_for_edge(channelTTL, GPIO.RISING, timeout=10) || GPIO.wait_for_edge(channelPush, GPIO.FALLING, timeout=200)
-    if ch_trig is not None:
-        cam_trigger(ch_trig)
+    #ch_trig = GPIO.wait_for_edge(channelTTL, GPIO.RISING, timeout=10) || GPIO.wait_for_edge(channelPush, GPIO.FALLING, timeout=200)
+    #if ch_trig is not None:
+    #    cam_trigger(ch_trig)
 
     print('Waiting for trigger ')
     spinner = itertools.cycle(['-', '/', '|', '\\']) # set up spinning "wheel"
