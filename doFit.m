@@ -1,4 +1,4 @@
-function R = doFit(v, pupilSize, seedPoints, sThres, params)
+function R = doFit(v, pupilSize, seedPoints, sThres, params, mask)
 % circular+elliptical fit algorithm for the input video
 
 fitMethod = params.fitMethod;
@@ -35,7 +35,15 @@ v.CurrentTime = params.startFrame/v.FrameRate;
 while hasFrame(v)
     message = strcat('processed video : ',v.name);
     utils.progbar(v.CurrentTime/v.Duration,'msg',message);
-    F=readFrame(v);
+    F=rgb2gray(readFrame(v));
+    
+    if params.doCrop
+        xDim = any(mask, 1);
+        yDim = any(mask, 2);
+        rectDims = [sum(yDim), sum(xDim)];
+        F = reshape(F(mask), rectDims);
+    end
+    
     frameNum = round(v.CurrentTime * v.FrameRate);
 
     % Increment video reader
@@ -51,7 +59,7 @@ while hasFrame(v)
 
     % adjust contrast
     if params.enhanceContrast
-        F = imadjust(rgb2gray(F));
+        F = imadjust(F);
     end
 
     F = medfilt2(F);

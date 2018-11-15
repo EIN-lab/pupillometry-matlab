@@ -55,23 +55,23 @@ function R = pupilMeasurement(varargin)
 
 % Check all the input arguments
 pNames = {'fitMethod', 'spSelect', 'doPlot', 'thresVal', 'frameInterval', ...
-    'videoPath', 'fileSavePath', 'startFrame', 'enhanceContrast'};
-pValues = {2, 'line', false, [], 5, [], [], 1, false};
+    'videoPath', 'fileSavePath', 'startFrame', 'enhanceContrast', 'doCrop'};
+pValues = {2, 'line', false, [], 5, [], [], 1, false, true};
 params = cell2struct(pValues, pNames, 2);
 
 % Parse function input arguments
 params = utils.parsepropval2(params, varargin{:});
 
-fitMethod = params.fitMethod;
+%fitMethod = params.fitMethod;
 spSelect = params.spSelect;
-doPlot = params.doPlot;
-thresVal = params.thresVal;
-frameInterval = params.frameInterval;
+%doPlot = params.doPlot;
+%thresVal = params.thresVal;
+%frameInterval = params.frameInterval;
 videoPath = params.videoPath;
 fileSavePath = params.fileSavePath;
 startFrame = params.startFrame;
 enhanceContrast = params.enhanceContrast;
-
+doCrop = params.doCrop;
 % Select videos
 if isempty(videoPath)
     [vname, vpath] = uigetfile({'*.mp4;*.m4v;*.avi;*.mov;*.mj2;*.mpg;*.wmv;*.asf;*.asx'},...
@@ -126,7 +126,7 @@ end
 
 % Set video start time
 v.CurrentTime = startFrame/v.FrameRate;
-F=rgb2gray(readFrame(v));
+F = rgb2gray(readFrame(v));
 
 % Close video reader
 clearvars v
@@ -158,10 +158,33 @@ if isempty(fileSavePath)
      fileSavePath = uigetdir(vpath,'Please create or select a folder to save the processed images and radii text');
 end
 
-% Ask the user to draw a line across the pupil
-hFig = figure; imshow(F);
-
 %% Start to process the videos
+
+% pre-processing: crop
+mask = 1;
+if doCrop
+    hFig = figure; hImgData = imshow(F);
+
+    strInstructions = 'Double click inside to complete the ROI.';
+    strFigTitle = sprintf('Select a square ROI to crop.\n%s', ...
+    strInstructions);
+
+    roiFun = @imrect;
+    title(strFigTitle);
+    hImPoly = roiFun();
+    wait(hImPoly);
+    mask = hImPoly.createMask(hImgData);
+    
+    close(hFig)
+    
+    xDim = any(mask, 1);
+    yDim = any(mask, 2);
+    rectDims = [sum(yDim), sum(xDim)];
+    F = reshape(F(mask), rectDims);
+end
+
+% Ask the user to draw a line across the pupil
+hFig = figure(); imshow(F);
 
 switch spSelect
     case 'line'
@@ -211,11 +234,11 @@ if numVideos > 1
     R = cell(1,numVideos);
     for j=1:numVideos
         v = VideoReader(videoPath);
-        R{j} = doFit(v, pupilSize, seedPoints, sThresh, params);
+        R{j} = doFit(v, pupilSize, seedPoints, sThresh, params, mask);
     end
 else
     v = VideoReader(videoPath);
-    R = doFit(v, pupilSize, seedPoints, sThresh, params);
+    R = doFit(v, pupilSize, seedPoints, sThresh, params, mask);
 end
 
 % save the matrix or cell of R as a .mat file

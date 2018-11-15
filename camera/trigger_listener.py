@@ -62,22 +62,22 @@ camera.framerate = 25
 camera.start_preview(alpha=192) # remove alpha=192 to remove transparency
 sleep(2) # Camera warm-up time
 
-while True:
-    #ch_trig = GPIO.wait_for_edge(channelTTL, GPIO.RISING, timeout=10) || GPIO.wait_for_edge(channelPush, GPIO.FALLING, timeout=200)
-    #if ch_trig is not None:
-    #    cam_trigger(ch_trig)
-
-    print('Waiting for trigger ')
-    spinner = itertools.cycle(['-', '/', '|', '\\']) # set up spinning "wheel"
+print('Waiting for trigger ')
+spinner = itertools.cycle(['-', '/', '|', '\\']) # set up spinning "wheel"
 
 try:
     while True:
-        ch_trig = GPIO.wait_for_edge(channelTTL, GPIO.RISING,timeout=200) || GPIO.wait_for_edge(channelPush, GPIO.FALLING, timeout=200)
+        GPIO.wait_for_edge(40, GPIO.FALLING, timeout=195)
+        time.sleep(0.005) #debounce 5ms
+        # double-check - workaround for messy edge detection
+        if GPIO.input(channelTTL) == 0:
+            cam_trigger(channelTTL)
+        elif GPIO.input(channelPush) == 0:
+            cam_trigger(channelPush)
+
         sys.stdout.write(spinner.next())  # write the next character
         sys.stdout.flush()                # flush stdout buffer (actual character display)
         sys.stdout.write('\b')            # erase the last written char
-        if ch_trig is not None:
-            cam_trigger(ch_trig)
 except KeyboardInterrupt:
     camera.stop_preview()
     GPIO.cleanup()
