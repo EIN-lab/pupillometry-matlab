@@ -49,7 +49,7 @@ class MyFirstGUI:
         self.file_name_label.pack()
 
         self.file_name_value = Entry(master)
-        self.file_name_value.insert(0, "/home/pi/Videos/")
+        self.file_name_value.insert(0, "./")
         self.file_name_value.pack()
 
         self.save_file = Button(master, text="Browse...",
@@ -107,11 +107,14 @@ class MyFirstGUI:
 	    self.wait_for_trigger()
 	    return
 
+	if self.trigState:
+	    self.wait_trigger_flag.set(1)
+
 	fname = self.file_name_value.get()
 
-	if fname is None:
+	if fname == "./":
 	    date = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
-	    fname = "/home/pi/Videos/"+ date+ ".h264"
+	    fname = "./"+ date+ ".h264"
 
 	time_rec = int(self.record_time_value.get())
 	camera.start_recording(fname)
@@ -119,11 +122,12 @@ class MyFirstGUI:
 	if (time_rec > 0):
 	    camera.wait_recording(time_rec)
 	    camera.stop_recording()
+	    print("\nDone recording\n")
 
     def point_save_location(self):
         fname = asksaveasfilename(
             defaultextension=".h264",
-            initialdir="/home/pi/Videos/")
+            initialdir="./")
 
         if fname is None:
             return
@@ -141,7 +145,8 @@ class MyFirstGUI:
 
 	    # double-check - workaround for messy edge detection
             if GPIO.input(channelPush) == 0:
-            	self.wait_trigger.deselect()
+		self.trigState = True
+		self.wait_trigger.deselect()
 		self.start_recording()
 		return
 
