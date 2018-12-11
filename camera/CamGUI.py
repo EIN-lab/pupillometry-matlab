@@ -102,6 +102,7 @@ class MyFirstGUI:
 
     def start_recording(self):
 	# check trigger state
+	self.trigState = False
 	doWait = self.wait_trigger_flag.get()
 	if doWait:
 	    self.wait_for_trigger()
@@ -120,9 +121,15 @@ class MyFirstGUI:
 	camera.start_recording(fname)
 
 	if (time_rec > 0):
-	    camera.wait_recording(time_rec)
+	    sys.stdout.write("\rRecording started\n")
+	    for remaining in range(time_rec, 0, -1):
+		sys.stdout.write("\r")
+		sys.stdout.write("{:2d} seconds remaining.".format(remaining))
+		sys.stdout.flush()
+		camera.wait_recording(1)
+	    
 	    camera.stop_recording()
-	    print("\nDone recording\n")
+	    sys.stdout.write("\rDone recording!               \n")
 
     def point_save_location(self):
         fname = asksaveasfilename(
