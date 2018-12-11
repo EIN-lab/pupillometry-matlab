@@ -6,6 +6,7 @@ doPlot = params.doPlot;
 thresVal = params.thresVal;
 frameInterval = params.frameInterval;
 fileSavePath = params.fileSavePath;
+skipBadFrames = params.skipBadFrames;
 
 % creat a new folder to save the radii text and the processed frames
 [~, vname] = fileparts(v.Name);
@@ -75,7 +76,7 @@ while hasFrame(v)
     % select one of the input seed points which is located inside the black
     % part of the pupil
     [s,sFormer,seedPoints,sThres,aveGVold] = checkSeedPoints(F,seedPoints,...
-        sThres,sFormer,aveGVold);
+        sThres,sFormer,aveGVold, skipBadFrames);
     if isempty(s)
         R(n,:)=[frameNum,NaN];
         continue

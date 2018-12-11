@@ -55,18 +55,15 @@ function R = pupilMeasurement(varargin)
 
 % Check all the input arguments
 pNames = {'fitMethod', 'spSelect', 'doPlot', 'thresVal', 'frameInterval', ...
-    'videoPath', 'fileSavePath', 'startFrame', 'enhanceContrast'};
-pValues = {2, 'line', false, [], 5, [], [], 1, false};
+    'videoPath', 'fileSavePath', 'startFrame', 'enhanceContrast', ...
+    'skipBadFrames'};
+pValues = {2, 'line', false, [], 5, [], [], 1, false, true};
 params = cell2struct(pValues, pNames, 2);
 
 % Parse function input arguments
 params = utils.parsepropval2(params, varargin{:});
 
-fitMethod = params.fitMethod;
 spSelect = params.spSelect;
-doPlot = params.doPlot;
-thresVal = params.thresVal;
-frameInterval = params.frameInterval;
 videoPath = params.videoPath;
 fileSavePath = params.fileSavePath;
 startFrame = params.startFrame;
