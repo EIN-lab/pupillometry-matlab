@@ -56,8 +56,8 @@ function R = pupilMeasurement(varargin)
 % Check all the input arguments
 pNames = {'fitMethod', 'spSelect', 'doPlot', 'thresVal', 'frameInterval', ...
     'videoPath', 'fileSavePath', 'startFrame', 'enhanceContrast', ...
-    'skipBadFrames'};
-pValues = {2, 'line', false, [], 5, [], [], 1, false, true};
+    'skipBadFrames', 'fillBadData'};
+pValues = {2, 'line', false, [], 5, [], [], 1, false, true, 'movmedian'};
 params = cell2struct(pValues, pNames, 2);
 
 % Parse function input arguments
@@ -99,6 +99,12 @@ if ~ischar(params.spSelect)
     error('''spSelect must'' be a character array')
 end
 
+% Check fillBadData
+if ~any(strcmp(params.fillBadData, ...
+        {'nan', 'movmedian', 'movmean', 'previous', 'linear', 'next', 'nearest'}))
+    error(['''fillBadData'' must be one of [''nan'', ''movmedian'' , ', ...
+        '''movmean'', ''previous'', ''linear'', ''next'', ''nearest'']']);
+end
 % Instantiate video reader
 if numVideos ~= 1
     sourcePath = fullfile(videoPath{1});
@@ -209,10 +215,26 @@ if numVideos > 1
     for j=1:numVideos
         v = VideoReader(videoPath);
         R{j} = doFit(v, pupilSize, seedPoints, sThresh, params);
+        switch params.fillBadData
+        case 'nan'
+            % do nothing
+        case {'movmedian', 'movmean'}
+            R{j} = fillmissing(R{j}, params.fillBadData, 5);
+        otherwise
+            R{j} = fillmissing(R{j}, params.fillBadData);
+        end
     end
 else
     v = VideoReader(videoPath);
     R = doFit(v, pupilSize, seedPoints, sThresh, params);
+    switch params.fillBadData
+        case 'nan'
+            % do nothing
+        case {'movmedian', 'movmean'}
+            R = fillmissing(R, params.fillBadData, 5);
+        otherwise
+            R = fillmissing(R, params.fillBadData);
+    end
 end
 
 % save the matrix or cell of R as a .mat file
