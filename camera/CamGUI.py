@@ -150,7 +150,7 @@ class CamGUI:
         time_rec = int(self.record_time_value.get())
         camera.start_recording(fname)
 
-	    if (time_rec > 0):
+        if (time_rec > 0):
             sys.stdout.write("\rRecording started\n")
             for remaining in range(time_rec, 0, -1):
                 sys.stdout.write("\r")
