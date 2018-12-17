@@ -75,10 +75,10 @@ class CamGUI:
         self.save_file = Button(master, text="Browse...",
             command=self.point_save_location)
         self.save_file.pack()
-	    self.wait_trigger_flag = IntVar()
-	    self.wait_trigger = Checkbutton(master, text="External trigger",
-            variable=self.wait_trigger_flag)
-	    self.wait_trigger.pack()
+        self.wait_trigger_flag = IntVar
+        self.wait_trigger = Checkbutton(master, text="External trigger",
+            variable=self.wait_trigger_flag
+        self.wait_trigger.pack()
 
         self.start_rec = Button(master, text="Start Recording",
             command=self.start_recording)
