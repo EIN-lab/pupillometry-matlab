@@ -77,7 +77,7 @@ class CamGUI:
         self.save_file.pack()
         self.wait_trigger_flag = IntVar
         self.wait_trigger = Checkbutton(master, text="External trigger",
-            variable=self.wait_trigger_flag
+            variable=self.wait_trigger_flag)
         self.wait_trigger.pack()
 
         self.start_rec = Button(master, text="Start Recording",
