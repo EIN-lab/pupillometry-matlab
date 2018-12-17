@@ -12,16 +12,16 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--light", action='store_false', default=True,
-    dest='boolean_f', help="Toggle BrightPi.")
+    dest='light', help="Toggle BrightPi.")
 parser.add_argument('--fullscreen', action='store_true', default=False,
-    dest='boolean_t', help="Toggle fullscreen preview.")
-parser.add_argument("--prevsize",  type=int, nargs='2', default=(320,240),
-    help="Width and height of the preview window.",)
-parser.add_argument("-r", "--framerate",  type=int, nargs='1', default=30,
+    dest='fullscreen', help="Toggle fullscreen preview.")
+parser.add_argument("--prevsize",  type=float, default=320,
+    help="Width of the preview window.",)
+parser.add_argument("-r", "--framerate",  type=int, default=30,
     help="Camera frame rate used for recordings.",)
-parser.add_argument("--rotation",  type=int, nargs='1', default=180,
+parser.add_argument("--rotation",  type=int, default=180,
     help="Rotation of camera output picture, in degree.",)
-parser.add_argument("--timeout",  type=int, nargs='1', default=20,
+parser.add_argument("--timeout",  type=int, default=20,
     help="How long the program will wait for an external trigger.",)
 args = parser.parse_args()
 
@@ -75,7 +75,7 @@ class CamGUI:
         self.save_file = Button(master, text="Browse...",
             command=self.point_save_location)
         self.save_file.pack()
-        self.wait_trigger_flag = IntVar
+        self.wait_trigger_flag = IntVar()
         self.wait_trigger = Checkbutton(master, text="External trigger",
             variable=self.wait_trigger_flag)
         self.wait_trigger.pack()
@@ -183,7 +183,7 @@ class CamGUI:
         print('Waiting for trigger ')
         spinner = itertools.cycle(['-', '/', '|', '\\']) # set up spinning "wheel"
 
-        numloops = args.timeout / 0.2 # Number of loops until timeout
+        numloops = int(args.timeout * 5) # Number of loops until timeout
 
         for x in range(numloops):
             GPIO.wait_for_edge(channelPush, GPIO.FALLING, timeout=195)
@@ -195,6 +195,8 @@ class CamGUI:
                 self.wait_trigger.deselect()
                 self.start_recording()
                 return
+	    else:
+		time.sleep(0.195)
 
             sys.stdout.write(spinner.next())  # write the next character
             sys.stdout.flush()                # flush stdout buffer (actual character display)
@@ -228,7 +230,11 @@ camera.rotation = args.rotation
 camera.color_effects = (128,128) #b/w
 camera.framerate = args.framerate
 camera.preview_fullscreen = args.fullscreen
-camera.preview_window = (100,20,args.prevsize(1),args.prevsize(2))
+
+#calculate preview size
+height = int(args.prevsize * 0.75)
+width = args.prevsize
+camera.preview_window = (100,20,width,height)
 
 # Create GUI
 root = Tk()
