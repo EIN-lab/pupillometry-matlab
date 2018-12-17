@@ -11,8 +11,18 @@ import RPi.GPIO as GPIO
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--nolight",  help="Boolean indicating not to use BrightPi",
-    action="store_true")
+parser.add_argument("--light", action='store_false', default=True,
+    dest='boolean_f', help="Toggle BrightPi.")
+parser.add_argument('--fullscreen', action='store_true', default=False,
+    dest='boolean_t', help="Toggle fullscreen preview.")
+parser.add_argument("--prevsize",  type=int, nargs='2', default=(320,240),
+    help="Width and height of the preview window.",)
+parser.add_argument("-r", "--framerate",  type=int, nargs='1', default=30,
+    help="Camera frame rate used for recordings.",)
+parser.add_argument("--rotation",  type=int, nargs='1', default=180,
+    help="Rotation of camera output picture, in degree.",)
+parser.add_argument("--timeout",  type=int, nargs='1', default=20,
+    help="How long the program will wait for an external trigger.",)
 args = parser.parse_args()
 
 channelPush = 40	# GPIO pin for push button/trigger LOW=active
@@ -79,7 +89,7 @@ class CamGUI:
         self.stop_rec.pack()
 
         # Skip lamp control, if necessary
-        if not args.nolight:
+        if args.light:
             LIGHT_Var = StringVar(root)
             LIGHT_Var.set(effects[0])
             LIGHT_Option = OptionMenu(self.master, LIGHT_Var, *effects,
@@ -173,7 +183,9 @@ class CamGUI:
 	    print('Waiting for trigger ')
 	    spinner = itertools.cycle(['-', '/', '|', '\\']) # set up spinning "wheel"
 
-	    for x in range(50):
+        numloops = args.timeout / 0.2 # Number of loops until timeout
+
+	    for x in range(numloops):
             GPIO.wait_for_edge(channelPush, GPIO.FALLING, timeout=195)
             time.sleep(0.005) #debounce 5ms
 
@@ -184,9 +196,9 @@ class CamGUI:
 		        self.start_recording()
 		        return
 
-                sys.stdout.write(spinner.next())  # write the next character
-                sys.stdout.flush()                # flush stdout buffer (actual character display)
-                sys.stdout.write('\b')            # erase the last written char
+            sys.stdout.write(spinner.next())  # write the next character
+            sys.stdout.flush()                # flush stdout buffer (actual character display)
+            sys.stdout.write('\b')            # erase the last written char
 
 	    self.wait_trigger.deselect()
 	    sys.stdout.write('\bNo trigger arrived\n')
@@ -198,24 +210,25 @@ class CamGUI:
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(channelPush, GPIO.IN, pull_up_down=GPIO.PUD_UP) # internal pull up
 
-# Define whether BrightPi is used
-if not args.nolight:
+# Check whether BrightPi is used
+if args.light:
     brightPi = BrightPi()
     brightPi.reset()
 
-LED_ALL = (1,2,3,4,5,6,7,8)
-LED_WHITE = LED_ALL[0:4]
-LED_IR = LED_ALL[4:8]
-ON = 1
-OFF = 0
+    # Define LEDs
+    LED_ALL = (1,2,3,4,5,6,7,8)
+    LED_WHITE = LED_ALL[0:4]
+    LED_IR = LED_ALL[4:8]
+    ON = 1
+    OFF = 0
 
-# Instantiate camera object with defined settings
+# Create camera object with defined settings
 camera = PiCamera()
-camera.rotation = 180
+camera.rotation = args.rotation
 camera.color_effects = (128,128) #b/w
-camera.framerate = 30
-camera.preview_fullscreen = False
-camera.preview_window = (100,20,320,240)
+camera.framerate = args.framerate
+camera.preview_fullscreen = args.fullscreen
+camera.preview_window = (100,20,args.prevsize(1),args.prevsize(2))
 
 # Create GUI
 root = Tk()
