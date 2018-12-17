@@ -132,34 +132,34 @@ class CamGUI:
         """Start recording or wait for trigger"""
 
 	    # check trigger state
-	    self.trigState = False
-	    doWait = self.wait_trigger_flag.get()
-	    if doWait:
-	        self.wait_for_trigger()
-	        return
+        self.trigState = False
+        doWait = self.wait_trigger_flag.get()
+        if doWait:
+            self.wait_for_trigger()
+            return
 
-	    if self.trigState:
-	        self.wait_trigger_flag.set(1)
+        if self.trigState:
+            self.wait_trigger_flag.set(1)
 
-	    fname = self.file_name_value.get()
+        fname = self.file_name_value.get()
 
-	    if fname == "./":
-	        date = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
-	        fname = "./"+ date+ ".h264"
+        if fname == "./":
+            date = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
+            fname = "./"+ date+ ".h264"
 
-	    time_rec = int(self.record_time_value.get())
-	    camera.start_recording(fname)
+        time_rec = int(self.record_time_value.get())
+        camera.start_recording(fname)
 
 	    if (time_rec > 0):
-	        sys.stdout.write("\rRecording started\n")
-	        for remaining in range(time_rec, 0, -1):
-		        sys.stdout.write("\r")
-		        sys.stdout.write("{:2d} seconds remaining.".format(remaining))
-		        sys.stdout.flush()
-		        camera.wait_recording(1)
+            sys.stdout.write("\rRecording started\n")
+            for remaining in range(time_rec, 0, -1):
+                sys.stdout.write("\r")
+                sys.stdout.write("{:2d} seconds remaining.".format(remaining))
+                sys.stdout.flush()
+                camera.wait_recording(1)
 
-	        camera.stop_recording()
-	        sys.stdout.write("\rDone recording!               \n")
+            camera.stop_recording()
+            sys.stdout.write("\rDone recording!               \n")
 
     def point_save_location(self):
         """ Ask user where to save the file"""
@@ -180,30 +180,30 @@ class CamGUI:
         defines maximum response latency. Length of range in for loop multiplied
         by timeout + debounce time gives time until trigger timeout."""
 
-	    print('Waiting for trigger ')
-	    spinner = itertools.cycle(['-', '/', '|', '\\']) # set up spinning "wheel"
+        print('Waiting for trigger ')
+        spinner = itertools.cycle(['-', '/', '|', '\\']) # set up spinning "wheel"
 
         numloops = args.timeout / 0.2 # Number of loops until timeout
 
-	    for x in range(numloops):
+        for x in range(numloops):
             GPIO.wait_for_edge(channelPush, GPIO.FALLING, timeout=195)
             time.sleep(0.005) #debounce 5ms
 
 	        # double-check - workaround for messy edge detection
             if GPIO.input(channelPush) == 0:
-		        self.trigState = True
-		        self.wait_trigger.deselect()
-		        self.start_recording()
-		        return
+                self.trigState = True
+                self.wait_trigger.deselect()
+                self.start_recording()
+                return
 
             sys.stdout.write(spinner.next())  # write the next character
             sys.stdout.flush()                # flush stdout buffer (actual character display)
             sys.stdout.write('\b')            # erase the last written char
 
-	    self.wait_trigger.deselect()
-	    sys.stdout.write('\bNo trigger arrived\n')
-	    sys.stdout.flush()
-	    return
+        self.wait_trigger.deselect()
+        sys.stdout.write('\bNo trigger arrived\n')
+        sys.stdout.flush()
+        return
 
 
 # Set up trigger input GPIO
