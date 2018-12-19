@@ -1,4 +1,5 @@
-function [s,sFormer,seedPoints,sThres,aveGVold] = checkSeedPoints(F,seedPoints,sThres,sFormer,aveGVold)
+function [s,sFormer,seedPoints,sThres,aveGVold] = checkSeedPoints(F,...
+    seedPoints,sThres,sFormer,aveGVold,skipBadFrames)
 % check or select a valid seed point whose gray value is lower than the
 % sThres on image F.
 
@@ -25,7 +26,12 @@ end
 % If there is no valid seed point, the user have to select a new
 % seed point for this frame
 if isempty(s)
-    if isempty(sFormer) || any( impixel(F,sFormer(1),sFormer(2)) > sThres)
+    if ~isempty(sFormer) && any(impixel(F,sFormer(1),sFormer(2)) <= sThres)
+        s=sFormer;
+    elseif skipBadFrames
+        s = [];
+        return
+    elseif (isempty(sFormer) || any(impixel(F,sFormer(1),sFormer(2)) > sThres))
         hFig = figure;
         hAxes = axes;
         imshow(F, 'Parent', hAxes)
@@ -61,15 +67,13 @@ if isempty(s)
             delete(hFig);
             %         trials = trials + 1;
         end
-    elseif ~isempty(sFormer) && any(impixel(F,sFormer(1),sFormer(2)) <= sThres)
-        s=sFormer;
     end
 
 %             sFormer=s;
     if ~isempty(s)
-    seedPoints = [seedPoints;s(1),s(2)];
-    sFormer=s;
-    s=[s(2),s(1),1];
+        seedPoints = [seedPoints;s(1),s(2)];
+        sFormer=s;
+        s=[s(2),s(1),1];
     end
 end
 end

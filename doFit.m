@@ -6,6 +6,7 @@ doPlot = params.doPlot;
 thresVal = params.thresVal;
 frameInterval = params.frameInterval;
 fileSavePath = params.fileSavePath;
+skipBadFrames = params.skipBadFrames;
 
 % creat a new folder to save the radii text and the processed frames
 [~, vname] = fileparts(v.Name);
@@ -78,11 +79,14 @@ while hasFrame(v)
         fontsize = 10;
     end
 
+    n=n+1;
+
     % select one of the input seed points which is located inside the black
     % part of the pupil
     [s,sFormer,seedPoints,sThres,aveGVold] = checkSeedPoints(F,seedPoints,...
-        sThres,sFormer,aveGVold);
+        sThres,sFormer,aveGVold, skipBadFrames);
     if isempty(s)
+        R(n,:)=[frameNum,NaN];
         continue
     end
 
@@ -99,8 +103,6 @@ while hasFrame(v)
         [~, r] = imfindcircles(FI, [rmin, rmax], 'ObjectPolarity', ...
             'bright');
     end
-
-    n=n+1;
 
     % Cases where imfindcircles didn't identify any circle
     if isempty(r) && n == 1
@@ -124,7 +126,7 @@ while hasFrame(v)
 
     if (nCircle ~= 1 ||  isBigOrNone) && fitMethod ~= 1
 
-        p=regionprops(FI,'Centroid','MajorAxisLength','MinorAxisLength','Orientation');
+        p=regionprops(FI,'MajorAxisLength');
         a = p.MajorAxisLength/2;
         R(n,:)=[frameNum,a];
         rmin = floor(a*0.9);
