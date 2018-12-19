@@ -5,53 +5,72 @@ function R = pupilMeasurement(varargin)
 % fileSavePath, startFrame, pupilSize)
 %
 % Syntax:
-%   R = pupilMeasurement;
-%   R = pupilMeasurement('fitMethod',1,'frameInterval',50);
-%   R = pupilMeasurement('doPlot',true,'thresVal',25);
+%   R = pupilMeasurement
+%   R = pupilMeasurement('fitMethod',1,'frameInterval',50)
+%   R = pupilMeasurement('doPlot',true,'thresVal',25)
 %
 % Inputs:
-%       fitMethod: input 1 - circular fit(if pupils are almost circular);
-%                  input 2 - circular+elliptical fit.
-%                  input 3 - elliptical fit only
-%                  Default value - 2
+%       fitMethod:  1 - circular fit(if pupils are almost circular);
+%                   2 - circular+elliptical fit.
+%                   3 - elliptical fit only
+%                   Default = 2
 %
-%     spSelect: Whether to estimate seedpoint from darkest point ('line') or
-%               manually selecting 4 seed points ('points').
+%       spSelect:   Whether to estimate seedpoint from darkest point
+%                   ('line') or manually selecting 4 seed points
+%                   ('points').
+%                   Default = 'line'
 %
-%       doPlot: input false - only save the radii in a txt file.
-%               input true - all fitted frames will also be saved
-%               Default value - 0
+%       doPlot:     Whether to show a live plot of measured radii. 
+%                   Default = false
 %
-%       thresVal: threshold for the region-growing segmentation, which
-%                 stands for the difference of the gray values between the
-%                 pupil and the iris of the eye.Values from 15 to 30 would
-%                 be reasonable for normal cases.
-%                 Default value - 18
+%       thresVal:   Threshold for the region-growing segmentation, which
+%                   stands for the difference of the gray values between
+%                   the pupil and the iris of the eye. Values from 15 to 30
+%                   are reasonable for normal cases.
+%                   Default = []
 %
-%       frameInterval: the interval between each processed frame, it must
-%                      be an integer.
-%                      Default value - 5
+%       frameInterval: The interval between processed frames.
+%                      Default = 5
 %
-%       videoPath: should be given as [],then the user needs to select one
-%                  or more video after running the algorithm.
+%       videoPath:  A path or cell array of paths to the file(s) to
+%                   process. Leave empty to prompt user for selection.
+%                   Default = []
 %
-%       fileSavePath: should be given as [], then the user needs to select (or
-%                 create) a folder, which will be used to save the images
-%                 and text file.
+%       fileSavePath: A path to the folder where results are stored. Leave
+%                     empty to promt user for selection.
+%                     Default = []
 %
-%       startFrame: the number of the first frame to be processed.
-%                   Default value - the number of the first frame whose
-%                   maximal gray value is higher than 100
+%       startFrame: The first frame to be processed.
+%                   Default = 1
+%
+%       enhanceContrast: Flag whether to attempt automatic contrast
+%                        enhancement.
+%                        Default = false
+%
+%       doCrop:     Flag whether to promt user for cropping of video.
+%                   Default = false
+%
+%       skipBadFrames: Flag whether to skip bad frames automatically.
+%                      Default = false
+%
+%       fillBadData: Which method to apply to fill bad data (i.e. skipped
+%                    frames). Options are:
+%                       'previous'  - Previous non-missing entry.
+%                       'next'      - Next non-missing entry.
+%                       'nearest'   - Nearest non-missing entry.
+%                       'movmean'   - Moving average of neighboring non-missing entries.
+%                       'movmedian' - Moving median of neighboring non-missing entries.
+%
+%                   Note: 'movmean' and 'movmeadian' will only fill data,
+%                   if less than 5 subsequent values are missing.
+%                   Otherwise, NaNs will be filled in.
 %
 %
 % Output:
-%       R:  a 1*n matrix or a 1*h cell which contain the radii of the pupil in
-%           each processed frame, and these radii will also be saved as a txt
-%           file
+%       R:  A 1*n matrix or a 1*h cell which contain the radii of the pupil
+%           in each processed frame, and these radii will also be saved as
+%           a txt file
 %
-%         If doPlot is true, all processed frames will also be saved in
-%         the selected folder with fitted ellipse or circle shown on.
-
 
 % Check all the input arguments
 pNames = {'fitMethod', 'spSelect', 'doPlot', 'thresVal', 'frameInterval', ...
