@@ -237,7 +237,7 @@ if numVideos > 1
     R = cell(1,numVideos);
     for j=1:numVideos
         v = VideoReader(videoPath);
-        R{j} = doFit(v, pupilSize, seedPoints, sThresh, params);
+        R{j} = doFit(v, pupilSize, seedPoints, sThresh, params, mask);
         switch params.fillBadData
         case 'nan'
             % do nothing
@@ -249,7 +249,7 @@ if numVideos > 1
     end
 else
     v = VideoReader(videoPath);
-    R = doFit(v, pupilSize, seedPoints, sThresh, params);
+    R = doFit(v, pupilSize, seedPoints, sThresh, params, mask);
     switch params.fillBadData
         case 'nan'
             % do nothing
