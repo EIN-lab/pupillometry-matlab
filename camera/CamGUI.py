@@ -26,7 +26,7 @@ parser.add_argument("--timeout",  type=int, default=20,
 args = parser.parse_args()
 
 channelPush = 40	# GPIO pin for push button/trigger LOW=active
-effects = ['all', 'IR', 'white', 'off']
+effects = ['off', 'all', 'IR', 'white']
 
 class CamGUI:
     """A simple GUI to control RasPi camera recordings
@@ -90,9 +90,12 @@ class CamGUI:
 
         # Skip lamp control, if necessary
         if args.light:
+            self.light_label = Label(master, text="LED light")
+            self.light_label.pack()
+
             LIGHT_Var = StringVar(root)
             LIGHT_Var.set(effects[0])
-            LIGHT_Option = OptionMenu(self.master, LIGHT_Var, *effects,
+            LIGHT_Option = OptionMenu(master, LIGHT_Var, *effects,
                 command=self.set_light)
             LIGHT_Option.pack()
 
