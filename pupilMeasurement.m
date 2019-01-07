@@ -148,11 +148,25 @@ if floor(params.thresVal) ~= params.thresVal
     error('''threshVal'' must be an integer value.')
 end
 
-% Check if the user want to save all the images
+% Check doPlot flag
 try
     logical(params.doPlot);
 catch
     error('''doPlot'' must be convertible to logical.')
+end
+
+% Check enhanceContrast flag
+try
+    logical(params.enhanceContrast );
+catch
+    error('''enhanceContrast '' must be convertible to logical.')
+end
+
+% Check if the user wants to see a plot
+try
+    logical(params.skipBadFrames);
+catch
+    error('''skipBadFrames'' must be convertible to logical.')
 end
 
 % Select the folder to save all the processed images and radii text
