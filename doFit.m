@@ -125,7 +125,7 @@ while hasFrame(v)
     isBigOrNone = isBigOrNone || (n>1 && any(abs(r-R(n-1))>(Rdiff))); % subsequent frames
 
     if (nCircle ~= 1 ||  isBigOrNone) && fitMethod ~= 1
-
+        
         p=regionprops(FI,'MajorAxisLength');
         a = p.MajorAxisLength/2;
         R(n,:)=[frameNum,a];
@@ -138,31 +138,8 @@ while hasFrame(v)
         end
 
         R(n,:)=[frameNum,r(1)];
-
-        % show the frame with fitted circle and seed point on it and
-        % save the image into the selected folder
-        %    if doPlot
-        %        str=sprintf('frame %d, r=%f',frameNum,r);
-        %        F=insertText(F,[1,1],str,'TextColor','r','BoxColor','w',...
-        %            'FontSize',fontsize);
-        %        imshow(F,'Border','tight', 'Parent', currAxes);
-        %        %             imshow(F,'Border','tight')
-        %        hold on
-        %        h=viscircles(o,r,'LineWidth',2.5);
-        %        plot(s(2),s(1),'r+')
-        %        filename=sprintf('frame %d.jpg',frameNum);
-        %        Iname=fullfile(folderPath,filename);
-        %        Fsave=getframe(hFigVid);
-        %        imwrite(Fsave.cdata,Iname);
-        %        hold off
-        %    end
         rmin = floor(r(1)*0.9);
         rmax = ceil(r(1)*1.1);
-
-        if doPlot
-            plotImages(F, frameNum, R, folderPath)
-        end
-
     end
 
     % plot the variation of the pupil radius
@@ -173,6 +150,7 @@ while hasFrame(v)
         title('Pupil Radius');
         xlabel('frame number');
         ylabel('Pupil Radius/pixel');
+        
     elseif doPlot && plotExist
         plot(axRad, R(:,1),R(:,2)) % change the line data
         drawnow
