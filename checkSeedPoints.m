@@ -9,7 +9,11 @@ val = [];
 % the gray-value threshould for seed points, sThres is varied with the
 % average gray value on current frame.
 aveGVnew = mean(mean(F));
-sThres = sThres + (aveGVnew - aveGVold);
+
+% check that the correction factor isn't too big
+if abs(aveGVnew - aveGVold) < sThres
+    sThres = sThres + (aveGVnew - aveGVold);
+end
 aveGVold = aveGVnew;
 
 % Make sure we have a valid seed point
