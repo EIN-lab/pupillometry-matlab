@@ -67,9 +67,8 @@ function R = pupilMeasurement(varargin)
 %
 %
 % Output:
-%       R:  A 1*n matrix or a 1*h cell which contain the radii of the pupil
-%           in each processed frame, and these radii will also be saved as
-%           a txt file
+%       R:  A 1*n cell which contain the radii of the pupil in each
+%       processed frame, and these radii will be saved as a csv file
 %
 
 % Check all the input arguments
@@ -98,7 +97,9 @@ if isempty(videoPath)
     videoPath = fullfile(vpath, vname);
 end
 
-numVideos = numel(cellstr(videoPath));
+% convert videoPath to cell
+videoPath = cellstr(videoPath);
+numVideos = numel(videoPath);
 
 % Check the fitMethod
 if ~isfinite(params.fitMethod) || ~isscalar(params.fitMethod)
@@ -124,15 +125,6 @@ if ~any(strcmp(params.fillBadData, ...
     error(['''fillBadData'' must be one of [''nan'', ''movmedian'' , ', ...
         '''movmean'', ''previous'', ''linear'', ''next'', ''nearest'']']);
 end
-% Instantiate video reader
-if numVideos ~= 1
-    sourcePath = fullfile(videoPath{1});
-else
-    sourcePath = videoPath;
-end
-
-% Read video frames while available
-v = VideoReader(sourcePath);
 
 % Check startFrame property
 isnum = isnumeric(startFrame);
@@ -145,13 +137,6 @@ if ~(floor(startFrame) == startFrame)
     warning('startFrame property should be an integer.')
     startFrame = round(startFrame);
 end
-
-% Set video start time
-v.CurrentTime = startFrame/v.FrameRate;
-F = rgb2gray(readFrame(v));
-
-% Close video reader
-clearvars v
 
 % Check the frame interval
 if ~(floor(params.frameInterval) == params.frameInterval)
@@ -170,112 +155,109 @@ catch
     error('''doPlot'' must be convertible to logical.')
 end
 
-% Auto-adjust image contrast
-if enhanceContrast
-    F = imadjust(F);
-end
-
 % Select the folder to save all the processed images and radii text
 if isempty(fileSavePath)
      fileSavePath = uigetdir(vpath,'Please create or select a folder to save the processed images and radii text');
 end
 
 %% Start to process the videos
-
-% pre-processing: crop
-mask = 1;
-if doCrop
-    hFig = figure; hImgData = imshow(F);
-
-    strInstructions = 'Double click inside to complete the ROI.';
-    strFigTitle = sprintf('Select a square ROI to crop.\n%s', ...
-    strInstructions);
-
-    roiFun = @imrect;
-    title(strFigTitle);
-    hImPoly = roiFun();
-    wait(hImPoly);
-    mask = hImPoly.createMask(hImgData);
-
-    close(hFig)
-
-    xDim = any(mask, 1);
-    yDim = any(mask, 2);
-    rectDims = [sum(yDim), sum(xDim)];
-    F = reshape(F(mask), rectDims);
-end
-
-% Ask the user to draw a line across the pupil
-hFig = figure(); imshow(F);
-
-switch spSelect
-    case 'line'
-        title('Please draw the longest diameter across the pupil by clicking on the edge of the pupil, the end point can be slected by right-click. ');
-        [cx, cy, c] = improfile;
-        lengthc = length(c);
-        h = imdistline(gca, [cx(1), cx(lengthc)], [cy(1), cy(lengthc)]);
-        pupilSize = getDistance(h);
-        delete(hFig);
-
-        % find the threshold gray value sThres for the seed point
-        % delete points whose gray values are higher than 150 (i.e., points inside
-        % the iris or corneal reflection part).
-        c(c > 150) = [];
-        sThresh = prctile(c, 95);
-
-        % Seed Point Selection : use the point having the lowest gray value on the
-        % drawn line as the first seed point.
-        [~, indexc] = min(c);
-        if pupilSize > 20
-            seedPoints=[round(cx(indexc)), round(cy(indexc))];
-        else
-            cx2 = round((cx(indexc)*2));
-            cy2 = round((cy(indexc)*2));
-            seedPoints = [cx2, cy2];
-        end
-
-    case 'points'
-        %check the size of eye and select the seed point s for regionGrowing
-        %segmentation
-
-
-        title(sprintf(['Please select 4 seed points inside the BLACK PART OF THE PUPIL.\n', ...
-            'The seed points should be located as far away from each other as possible. \n', ...
-            'The best selection would be the top, bottom, left and right sides of the pupil.']))
-        seedPoints=round(ginput(4));
-        delete(hFig);
-        pause(.2);
-
-    otherwise
-        error('Unknown seed point selection method "%s"', method.spSelect)
-end
-
-
-% Check the fit method and fit the pupil images
-if numVideos > 1
-    R = cell(1,numVideos);
-    for j=1:numVideos
-        v = VideoReader(videoPath);
-        R{j} = doFit(v, pupilSize, seedPoints, sThresh, params, mask);
-        switch params.fillBadData
+R = cell(1,numVideos);
+for j=1:numVideos
+    
+    % Read video frames while available
+    v = VideoReader(videoPath{j});
+    
+    % Set video start time
+    v.CurrentTime = startFrame/v.FrameRate;
+    F = rgb2gray(readFrame(v));
+    
+    % Close video reader
+    clearvars v
+    
+    % Auto-adjust image contrast
+    if enhanceContrast
+        F = imadjust(F);
+    end
+    
+    % pre-processing: crop
+    mask = 1;
+    if doCrop
+        hFig = figure; hImgData = imshow(F);
+        
+        strInstructions = 'Double click inside to complete the ROI.';
+        strFigTitle = sprintf('Select a square ROI to crop.\n%s', ...
+            strInstructions);
+        
+        roiFun = @imrect;
+        title(strFigTitle);
+        hImPoly = roiFun();
+        wait(hImPoly);
+        mask = hImPoly.createMask(hImgData);
+        
+        close(hFig)
+        
+        xDim = any(mask, 1);
+        yDim = any(mask, 2);
+        rectDims = [sum(yDim), sum(xDim)];
+        F = reshape(F(mask), rectDims);
+    end
+    
+    % Ask the user to draw a line across the pupil
+    hFig = figure(); imshow(F);
+    
+    switch spSelect
+        case 'line'
+            title('Please draw the longest diameter across the pupil by clicking on the edge of the pupil, the end point can be slected by right-click. ');
+            [cx, cy, c] = improfile;
+            lengthc = length(c);
+            h = imdistline(gca, [cx(1), cx(lengthc)], [cy(1), cy(lengthc)]);
+            pupilSize = getDistance(h);
+            delete(hFig);
+            
+            % find the threshold gray value sThres for the seed point
+            % delete points whose gray values are higher than 150 (i.e., points inside
+            % the iris or corneal reflection part).
+            c(c > 150) = [];
+            sThresh = prctile(c, 95);
+            sThresh = max(sThresh, 50); % fix for really dark pupils
+            
+            % Seed Point Selection
+            %[~, indexc] = min(c);
+            if pupilSize > 20
+                seedPoints=[round(cx), round(cy)];
+            else
+                cx2 = round(cx*2);
+                cy2 = round(cy*2);
+                seedPoints = [cx2, cy2];
+            end
+            
+        case 'points'
+            %check the size of eye and select the seed point s for regionGrowing
+            %segmentation
+            
+            
+            title(sprintf(['Please select 4 seed points inside the BLACK PART OF THE PUPIL.\n', ...
+                'The seed points should be located as far away from each other as possible. \n', ...
+                'The best selection would be the top, bottom, left and right sides of the pupil.']))
+            seedPoints=round(ginput(4));
+            delete(hFig);
+            pause(.2);
+            
+        otherwise
+            error('Unknown seed point selection method "%s"', method.spSelect)
+    end
+    
+    % Check the fit method and fit the pupil images
+    
+    v = VideoReader(videoPath{j});
+    R{j} = doFit(v, pupilSize, seedPoints, sThresh, params, mask);
+    switch params.fillBadData
         case 'nan'
             % do nothing
         case {'movmedian', 'movmean'}
             R{j} = fillmissing(R{j}, params.fillBadData, 5);
         otherwise
             R{j} = fillmissing(R{j}, params.fillBadData);
-        end
-    end
-else
-    v = VideoReader(videoPath);
-    R = doFit(v, pupilSize, seedPoints, sThresh, params, mask);
-    switch params.fillBadData
-        case 'nan'
-            % do nothing
-        case {'movmedian', 'movmean'}
-            R = fillmissing(R, params.fillBadData, 5);
-        otherwise
-            R = fillmissing(R, params.fillBadData);
     end
 end
 
