@@ -1,0 +1,50 @@
+Acknowledgements
+
+This project incorporates code from a number of external sources, and we are
+grateful to the authors for making the code available. To the best of our
+knowledge this information is complete and correct; however, we apologise
+for any unintentional errors and/or omissions, and will endeavour to correct
+these if made aware of them.
+
+% --------------------------------------------------------------------------- %
+
+The following files/functions are copyright the authors (as listed) according  
+to the terms of the FreeBSD licence as listed at the bottom of this section
+
+- "GetFullPath", Copyright (c) 2010, Jan Simon, retrieved from 
+  http://www.mathworks.com/matlabcentral/fileexchange/28249.
+
+- "parsepropval", Copyright (c) 2009, Douglas M. Schwarz, retrieved from 
+  http://www.mathworks.com/matlabcentral/fileexchange/22671. We have modified
+  the original code in our implementation. 
+
+- "regionGrowing" and its associated files, (c) 2011, Daniel Kellner, retrieved from 
+  https://ch.mathworks.com/matlabcentral/fileexchange/32532-region-growing-2d-3d-grayscale. 
+  We have modified the original code in our implementation.
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+* Redistributions of source code must retain the above copyright 
+  notice, this list of conditions and the following disclaimer.
+	  
+* Redistributions in binary form must reproduce the above copyright 
+  notice, this list of conditions and the following disclaimer in
+  the documentation and/or other materials provided with the distribution
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+% --------------------------------------------------------------------------- %
