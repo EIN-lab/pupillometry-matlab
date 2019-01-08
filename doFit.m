@@ -29,7 +29,7 @@ rmax = rmin*3;
 v.CurrentTime = params.startFrame/v.FrameRate;
 
 while hasFrame(v)
-    message = strcat('processed video : ',v.name);
+    message = sprintf(['\n\nProcessing ',v.name]);
     utils.progbar(v.CurrentTime/v.Duration,'msg',message);
     F=rgb2gray(readFrame(v));
     
