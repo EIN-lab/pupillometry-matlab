@@ -71,6 +71,9 @@ function R = pupilMeasurement(varargin)
 %       processed frame, and these radii will be saved as a csv file
 %
 
+% Declare a persistent variable to remeber file save location
+persistent fnGuess
+
 % Check all the input arguments
 pNames = {'fitMethod', 'spSelect', 'doPlot', 'thresVal', 'frameInterval', ...
     'videoPath', 'fileSavePath', 'startFrame', 'enhanceContrast', 'doCrop', ...
@@ -89,8 +92,8 @@ enhanceContrast = params.enhanceContrast;
 doCrop = params.doCrop;
 % Select videos
 if isempty(videoPath)
-    [vname, vpath] = uigetfile({'*.mp4;*.m4v;*.avi;*.mov;*.mj2;*.mpg;*.wmv;*.asf;*.asx'},...
-        'Please select the video file(s)','multiselect','on');
+    [vname, vpath] = uigetfile({'*.mp4;*.m4v;*.avi;*.mov;*.mpg'},...
+        'Please select the video file(s)',fnGuess,'multiselect','on');
     if isnumeric(vname) && vname == 0
         error('Please select a file to load')
     end
@@ -100,6 +103,9 @@ end
 % convert videoPath to cell
 videoPath = cellstr(videoPath);
 numVideos = numel(videoPath);
+
+% Remember videoPath for next run
+fnGuess = vpath;
 
 % Check the fitMethod
 if ~isfinite(params.fitMethod) || ~isscalar(params.fitMethod)
