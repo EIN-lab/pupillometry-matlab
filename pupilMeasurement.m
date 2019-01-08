@@ -105,6 +105,9 @@ videoPath = cellstr(videoPath);
 numVideos = numel(videoPath);
 
 % Remember videoPath for next run
+if ~exist('vpath','var')
+    vpath = fileparts(videoPath{1});
+end
 fnGuess = vpath;
 
 % Check the fitMethod
