@@ -262,7 +262,6 @@ for j=1:numVideos
     end
     
     % Check the fit method and fit the pupil images
-    
     v = VideoReader(videoPath{j});
     R{j} = doFit(v, pupilSize, seedPoints, sThresh, params, mask);
     switch params.fillBadData
