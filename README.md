@@ -1,7 +1,7 @@
 pupil-analysis
 =====
 
-This is an open-source MATLAB-based code bundle to measure and analysze pupil diameter changes. Please see the [s180423_example.m](https://github.com/EIN-lab/pupil-analysis/blob/master/s180423_example.m) file for detailed instructions on how to load and analyze data.
+This is an open-source MATLAB-based code bundle to measure and analyze pupil diameter changes. Please see the [s180423_example.m](https://github.com/EIN-lab/pupil-analysis/blob/master/s180423_example.m) file for detailed instructions on how to load and analyze data.
 
 Getting Started
 ---------------
@@ -12,7 +12,7 @@ No additional libraries are required.
 
 #### Files for examples and tests
 
-The files used in the [s180423_example.m](https://github.com/EIN-lab/pupil-analysis/blob/master/s180423_example.m) can be downloaded manually through the University of Zurich [website]().
+The files used in the [s191113_example.m](https://github.com/EIN-lab/pupil-analysis/blob/master/s191113_example.m) can be downloaded manually through the University of Zurich [website]().
 
 Getting Help
 ------------
@@ -36,12 +36,7 @@ Although the GNU General Public License does not permit terms requiring users to
 Authors
 -------
 
-pupil-analysis has been developed at the University of Zurich by:
-
-- Kim David Ferrari
-- Rongrong Xiang
-- Matthew J. Barrett
-- Bruno Weber
+Please refer to the publication [Link to publication]() or use the matlab function utils.citation().
 
 Code of Conduct
 -------
