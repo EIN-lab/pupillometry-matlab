@@ -19,7 +19,7 @@ function R = pupilMeasurement(varargin)
 %                   ('points').
 %                   Default = 'line'
 %
-%       doPlot:     Whether to show a live plot of measured radii. 
+%       doPlot:     Whether to show a live plot of measured radii.
 %                   Default = false
 %
 %       thresVal:   Threshold for the region-growing segmentation, which
@@ -76,13 +76,13 @@ function R = pupilMeasurement(varargin)
 %   it under the terms of the GNU General Public License as published by
 %   the Free Software Foundation, either version 3 of the License, or
 %   (at your option) any later version.
-% 
+%
 %   This program is distributed in the hope that it will be useful,
 %   but WITHOUT ANY WARRANTY; without even the implied warranty of
 %   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %   GNU General Public License for more details.
-%   
-%   You should have received a copy of the GNU General Public License 
+%
+%   You should have received a copy of the GNU General Public License
 %   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % Declare a persistent variable to remeber file save location
@@ -131,7 +131,7 @@ if ~isfinite(params.fitMethod) || ~isscalar(params.fitMethod)
 end
 
 if ~(floor(params.fitMethod) == params.fitMethod)
-  error('''fitMethod'' must be an integer value.')
+    error('''fitMethod'' must be an integer value.')
 end
 
 if ~any(params.fitMethod == [1, 2, 3])
@@ -195,7 +195,7 @@ end
 
 % Select the folder to save all the processed images and radii text
 if isempty(fileSavePath)
-     fileSavePath = uigetdir(vpath,'Please create or select a folder to save the processed images and radii text');
+    fileSavePath = uigetdir(vpath,'Please create or select a folder to save the processed images and radii text');
 end
 
 %% Start to process the videos
@@ -288,13 +288,14 @@ for j=1:numVideos
     % Check the fit method and fit the pupil images
     v = VideoReader(videoPath{j});
     currR = doFit(v, pupilSize, seedPoints, sThresh, params, mask);
+    
     switch params.fillBadData
         case 'nan'
             % do nothing
         case {'movmedian', 'movmean'}
-            currR = fillmissing(R{j}, params.fillBadData, 5);
+            currR = fillmissing(currR, params.fillBadData, 5);
         otherwise
-            currR = fillmissing(R{j}, params.fillBadData);
+            currR = fillmissing(currR, params.fillBadData);
     end
     
     % save the matrix or cell of R as a .mat file
