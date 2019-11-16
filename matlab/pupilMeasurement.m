@@ -5,9 +5,8 @@ function R = pupilMeasurement(varargin)
 % fileSavePath, startFrame, pupilSize)
 %
 % Syntax:
-%   R = pupilMeasurement
-%   R = pupilMeasurement('fitMethod',1,'frameInterval',50)
-%   R = pupilMeasurement('doPlot',true,'thresVal',25)
+%   R = pupilMeasurement()
+%   R = pupilMeasurement('fitMethod',1,'frameInterval',50,...)
 %
 % Inputs:
 %       fitMethod:  1 - circular fit(if pupils are almost circular);
@@ -20,7 +19,7 @@ function R = pupilMeasurement(varargin)
 %                   ('points').
 %                   Default = 'line'
 %
-%       doPlot:     Whether to show a live plot of measured radii. 
+%       doPlot:     Whether to show a live plot of measured radii.
 %                   Default = false
 %
 %       thresVal:   Threshold for the region-growing segmentation, which
@@ -71,6 +70,21 @@ function R = pupilMeasurement(varargin)
 %       processed frame, and these radii will be saved as a csv file
 %
 
+%   Copyright (C) 2019  Mattia Privitera, Kim David Ferrari et al.
+%
+%   This program is free software: you can redistribute it and/or modify
+%   it under the terms of the GNU General Public License as published by
+%   the Free Software Foundation, either version 3 of the License, or
+%   (at your option) any later version.
+%
+%   This program is distributed in the hope that it will be useful,
+%   but WITHOUT ANY WARRANTY; without even the implied warranty of
+%   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%   GNU General Public License for more details.
+%
+%   You should have received a copy of the GNU General Public License
+%   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 % Declare a persistent variable to remeber file save location
 persistent fnGuess
 
@@ -90,6 +104,7 @@ fileSavePath = params.fileSavePath;
 startFrame = params.startFrame;
 enhanceContrast = params.enhanceContrast;
 doCrop = params.doCrop;
+
 % Select videos
 if isempty(videoPath)
     [vname, vpath] = uigetfile({'*.mp4;*.m4v;*.avi;*.mov;*.mpg'},...
@@ -112,11 +127,11 @@ fnGuess = vpath;
 
 % Check the fitMethod
 if ~isfinite(params.fitMethod) || ~isscalar(params.fitMethod)
-    error('''fitMethod'' must be a scalar, finite integer value.')
+    error('''fitMethod'' must be a scalar, finite value.')
 end
 
 if ~(floor(params.fitMethod) == params.fitMethod)
-  error('''fitMethod'' must be a scalar, finite integer value.')
+    error('''fitMethod'' must be an integer value.')
 end
 
 if ~any(params.fitMethod == [1, 2, 3])
@@ -180,7 +195,7 @@ end
 
 % Select the folder to save all the processed images and radii text
 if isempty(fileSavePath)
-     fileSavePath = uigetdir(vpath,'Please create or select a folder to save the processed images and radii text');
+    fileSavePath = uigetdir(vpath,'Please create or select a folder to save the processed images and radii text');
 end
 
 %% Start to process the videos
@@ -226,7 +241,7 @@ for j=1:numVideos
     end
     
     % Ask the user to draw a line across the pupil
-    hFig = figure(); imshow(F);
+    hFig = figure('units','normalized','outerposition',[0 0 1 1]); imshow(F);
     
     switch spSelect
         case 'line'
@@ -272,21 +287,24 @@ for j=1:numVideos
     
     % Check the fit method and fit the pupil images
     v = VideoReader(videoPath{j});
-    R{j} = doFit(v, pupilSize, seedPoints, sThresh, params, mask);
+    currR = doFit(v, pupilSize, seedPoints, sThresh, params, mask);
+    
     switch params.fillBadData
         case 'nan'
             % do nothing
         case {'movmedian', 'movmean'}
-            R{j} = fillmissing(R{j}, params.fillBadData, 5);
+            currR = fillmissing(currR, params.fillBadData, 5);
         otherwise
-            R{j} = fillmissing(R{j}, params.fillBadData);
+            currR = fillmissing(currR, params.fillBadData);
     end
+    
+    % save the matrix or cell of R as a .mat file
+    [~, fname] = fileparts(v.name);
+    radiiMat=fullfile(fileSavePath, [fname, '_radii.mat']);
+    save(radiiMat, 'currR');
+    
+    R{j} = currR;
 end
-
-% save the matrix or cell of R as a .mat file
-[~, fname] = fileparts(v.name);
-radiiMat=fullfile(fileSavePath, [fname, '_radii.mat']);
-save(radiiMat, 'R');
 
 % save the matrix of Radii as a text file
 Tname = fullfile(fileSavePath, [fname, 'Pupil Radii.csv']);
