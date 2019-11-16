@@ -303,10 +303,10 @@ for j=1:numVideos
     radiiMat=fullfile(fileSavePath, [fname, '_radii.mat']);
     save(radiiMat, 'currR');
     
+    % save the matrix of Radii as a csv file
+    Tname = fullfile(fileSavePath, [fname, 'Pupil Radii.csv']);
+    dlmwrite(Tname,currR,'newline','pc','delimiter',';');
+
     R{j} = currR;
 end
-
-% save the matrix of Radii as a text file
-Tname = fullfile(fileSavePath, [fname, 'Pupil Radii.csv']);
-dlmwrite(Tname,R,'newline','pc','delimiter',';');
 end
