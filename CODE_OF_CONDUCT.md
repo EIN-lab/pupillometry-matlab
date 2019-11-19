@@ -1,4 +1,4 @@
-# pupil-analysis Code of Conduct
+# pupillometry-matlab Code of Conduct
 
 ## Our Pledge
 
