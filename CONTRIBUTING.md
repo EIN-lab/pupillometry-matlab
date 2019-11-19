@@ -1,8 +1,8 @@
-# Contributing to pupil-analysis
+# Contributing to pupillometry-matlab
 
-:+1::tada: Thank you for considering contributing to pupil-analysis! :tada::+1:
+:+1::tada: Thank you for considering contributing to pupillometry-matlab! :tada::+1:
 
-The following is a set of guidelines for contributing to pupil-analysis. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
+The following is a set of guidelines for contributing to pupillometry-matlab. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
 
 #### Table Of Contents
 
@@ -25,7 +25,7 @@ The following is a set of guidelines for contributing to pupil-analysis. These a
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by the [pupil-analysis Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [chips.devs@gmail.com](mailto:chips.devs@gmail.com).
+This project and everyone participating in it is governed by the [pupillometry-matlab Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [chips.devs@gmail.com](mailto:chips.devs@gmail.com).
 
 ## I don't want to read this whole thing I just have a question!!!
 
@@ -36,7 +36,7 @@ Questions can be asked via email to one of the developers or via opening an issu
 
 ### Reporting Bugs
 
-This section guides you through submitting a bug report for pupil-analysis. Following these guidelines helps maintainers and the community understand your report :pencil:, reproduce the behavior :computer: :computer:, and find related reports :mag_right:.
+This section guides you through submitting a bug report for pupillometry-matlab. Following these guidelines helps maintainers and the community understand your report :pencil:, reproduce the behavior :computer: :computer:, and find related reports :mag_right:.
 
 Before creating bug reports, please check [this list](#before-submitting-a-bug-report) as you might find out that you don't need to create one. When you are creating a bug report, please [include as many details as possible](#how-do-i-submit-a-good-bug-report).
 
@@ -44,14 +44,14 @@ Before creating bug reports, please check [this list](#before-submitting-a-bug-r
 
 #### Before Submitting A Bug Report
 
-* **First, check if you can reproduce the problem [in the latest version of pupil-analysis](https://github.com/EIN-lab/pupil-analysis/releases)**.
+* **First, check if you can reproduce the problem [in the latest version of pupillometry-matlab](https://github.com/EIN-lab/pupillometry-matlab/releases)**.
 * **Perform a [cursory search](https://github.com/issues?q=+is%3Aissue+user%3AEIN-lab)** to see if the problem has already been reported. If it has **and the issue is still open**, add a comment to the existing issue instead of opening a new one.
 * **Use MATLAB's debugging tools.** You might be able to find the cause of the problem and fix things yourself, i.e. already provide a solution to the problem.
 
 
 #### How Do I Submit A (Good) Bug Report?
 
-Bugs are tracked as [GitHub issues](https://guides.github.com/features/issues/). [Create an issue on the pupil-analysis repository](https://github.com/EIN-lab/pupil-analysis/issues)  with the `bug` label and provide the following information:
+Bugs are tracked as [GitHub issues](https://guides.github.com/features/issues/). [Create an issue on the pupillometry-matlab repository](https://github.com/EIN-lab/pupillometry-matlab/issues)  with the `bug` label and provide the following information:
 
 Explain the problem and include additional details to help maintainers reproduce the problem:
 
@@ -65,41 +65,41 @@ Explain the problem and include additional details to help maintainers reproduce
 
 Provide more context by answering these questions:
 
-* **Did the problem start happening recently** (e.g. after updating to a new version of pupil-analysis) or was this always a problem?
-* If the problem started happening recently, **can you reproduce the problem in an older version of pupil-analysis?** What's the most recent version in which the problem doesn't happen? You can download older versions of pupil-analysis from [the releases page](https://github.com/EIN-lab/pupil-analysis/releases).
+* **Did the problem start happening recently** (e.g. after updating to a new version of pupillometry-matlab) or was this always a problem?
+* If the problem started happening recently, **can you reproduce the problem in an older version of pupillometry-matlab?** What's the most recent version in which the problem doesn't happen? You can download older versions of pupillometry-matlab from [the releases page](https://github.com/EIN-lab/pupillometry-matlab/releases).
 * **Can you reliably reproduce the issue?** If not, provide details about how often the problem happens and under which conditions it normally happens.
 * If the problem is related to working with files, **does the problem happen for all files or only some?** Does the problem happen only when working with files of a specific type or with large files? Is there anything else special about the files you are using?
 
 Include details about your configuration and environment:
 
-* **Which version of pupil-analysis are you using?**
+* **Which version of pupillometry-matlab are you using?**
 * **What's the name and version of the OS you're using?**
 * **Are you running MATLAB in a virtual machine?** If so, which VM software are you using and which operating systems and versions are used for the host and the guest?
-* **Do you use local modification of the original pupil-analysis code?**
+* **Do you use local modification of the original pupillometry-matlab code?**
 
 ### Suggesting Enhancements
 
-This section guides you through submitting an enhancement suggestion for pupil-analysis, including completely new features and minor improvements to existing functionality. Following these guidelines helps maintainers and the community understand your suggestion :pencil: and find related suggestions :mag_right:.
+This section guides you through submitting an enhancement suggestion for pupillometry-matlab, including completely new features and minor improvements to existing functionality. Following these guidelines helps maintainers and the community understand your suggestion :pencil: and find related suggestions :mag_right:.
 
 Before creating enhancement suggestions, please check [this list](#before-submitting-an-enhancement-suggestion) as you might find out that you don't need to create one. When you are creating an enhancement suggestion, please [include as many details as possible](#how-do-i-submit-a-good-enhancement-suggestion).
 
 #### Before Submitting An Enhancement Suggestion
 
-* **Update** to the [latest version of pupil-analysis](https://github.com/EIN-lab/pupil-analysis/releases) — you might discover that the enhancement is already available.
+* **Update** to the [latest version of pupillometry-matlab](https://github.com/EIN-lab/pupillometry-matlab/releases) — you might discover that the enhancement is already available.
 * **Perform a [cursory search](https://github.com/issues?q=+is%3Aissue+user%3AEIN-lab)** to see if the enhancement has already been suggested. If it has, add a comment to the existing issue instead of opening a new one.
 
 #### How Do I Submit A (Good) Enhancement Suggestion?
 
-Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com/features/issues/). [Create an issue on the pupil-analysis repository](https://github.com/EIN-lab/pupil-analysis/issues) with the `enhancement` label and provide the following information:
+Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com/features/issues/). [Create an issue on the pupillometry-matlab repository](https://github.com/EIN-lab/pupillometry-matlab/issues) with the `enhancement` label and provide the following information:
 
 * **Use a clear and descriptive title** for the issue to identify the suggestion.
 * **Provide a step-by-step description of the suggested enhancement** in as much detail as possible.
 * **Provide specific examples to demonstrate the steps**. Include copy/pasteable snippets which you use in those examples, as [Markdown code blocks](https://help.github.com/articles/markdown-basics/#multiple-lines).
 * **Describe the current behavior** and **explain which behavior you expected to see instead** and why.
-* **Include screenshots and animated GIFs** which help you demonstrate the steps or point out the part of pupil-analysis which the suggestion is related to. You can use [this tool](http://www.cockos.com/licepupil/) to record GIFs on macOS and Windows, and [this tool](https://github.com/colinkeenan/silentcast) or [this tool](https://github.com/GNOME/byzanz) on Linux.
-* **Explain why this enhancement would be useful** to pupil-analysis users.
+* **Include screenshots and animated GIFs** which help you demonstrate the steps or point out the part of pupillometry-matlab which the suggestion is related to. You can use [this tool](http://www.cockos.com/licepupil/) to record GIFs on macOS and Windows, and [this tool](https://github.com/colinkeenan/silentcast) or [this tool](https://github.com/GNOME/byzanz) on Linux.
+* **Explain why this enhancement would be useful** to pupillometry-matlab users.
 * **Cite, if applicable, other software using the suggested enhancement.**
-* **Specify which version of pupil-analysis you're using.**
+* **Specify which version of pupillometry-matlab you're using.**
 * **Specify the name and version of the OS you're using.**
 
 ### Pull Requests
@@ -132,7 +132,7 @@ Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com
 
 ### MATLAB Styleguide
 
-pupil-analysis does not currently follow a detailed styleguide, but please follow
+pupillometry-matlab does not currently follow a detailed styleguide, but please follow
 the style of existing code in any new contributions, where possible.
 
 ### Documentation Styleguide
@@ -189,25 +189,25 @@ end
 
 ### Issue and Pull Request Labels
 
-This table lists the labels we use to help us track and manage issues and pull requests. [GitHub search](https://help.github.com/articles/searching-issues/) makes it easy to use labels for finding groups of issues or pull requests you're interested in. To help you find issues and pull requests, each label is listed with search links for finding open items with that label in `EIN-lab/pupil-analysis`. We encourage you to read about [other search filters](https://help.github.com/articles/searching-issues/) which will help you write more focused queries.
+This table lists the labels we use to help us track and manage issues and pull requests. [GitHub search](https://help.github.com/articles/searching-issues/) makes it easy to use labels for finding groups of issues or pull requests you're interested in. To help you find issues and pull requests, each label is listed with search links for finding open items with that label in `EIN-lab/pupillometry-matlab`. We encourage you to read about [other search filters](https://help.github.com/articles/searching-issues/) which will help you write more focused queries.
 
-| Label name | `pupil-analysis` :mag_right: | Description |
+| Label name | `pupillometry-matlab` :mag_right: | Description |
 | --- | --- | --- |
-| `enhancement` | [search][search-pupil-analysis-repo-label-enhancement] | Feature requests. |
-| `bug` | [search][search-pupil-analysis-repo-label-bug] | Confirmed bugs or reports that are very likely to be bugs. |
-| `question` | [search][search-pupil-analysis-repo-label-question] | Questions more than bug reports or feature requests (e.g. how do I do X). |
-| `duplicate` | [search][search-pupil-analysis-repo-label-duplicate]  | Issues which are duplicates of other issues, i.e. they have been reported before. |
-| `help wanted` | [search][search-pupil-analysis-repo-label-help-wanted] | The pupil-analysis core team would appreciate help from the community in resolving these issues. |
-| `wontfix` | [search][search-pupil-analysis-repo-label-wontfix] | The pupil-analysis core team has decided not to fix these issues for now, either because they're working as intended or for some other reason. |
-| `invalid` | [search][search-pupil-analysis-repo-label-invalid] | Issues which aren't valid (e.g. user errors). |
+| `enhancement` | [search][search-pupillometry-matlab-repo-label-enhancement] | Feature requests. |
+| `bug` | [search][search-pupillometry-matlab-repo-label-bug] | Confirmed bugs or reports that are very likely to be bugs. |
+| `question` | [search][search-pupillometry-matlab-repo-label-question] | Questions more than bug reports or feature requests (e.g. how do I do X). |
+| `duplicate` | [search][search-pupillometry-matlab-repo-label-duplicate]  | Issues which are duplicates of other issues, i.e. they have been reported before. |
+| `help wanted` | [search][search-pupillometry-matlab-repo-label-help-wanted] | The pupillometry-matlab core team would appreciate help from the community in resolving these issues. |
+| `wontfix` | [search][search-pupillometry-matlab-repo-label-wontfix] | The pupillometry-matlab core team has decided not to fix these issues for now, either because they're working as intended or for some other reason. |
+| `invalid` | [search][search-pupillometry-matlab-repo-label-invalid] | Issues which aren't valid (e.g. user errors). |
 
-[search-pupil-analysis-repo-label-enhancement]: https://github.com/issues?q=is%3Aopen+is%3Aissue+repo%3AEIN-lab%2Fpupil-analysis+label%3Aenhancement
-[search-pupil-analysis-repo-label-bug]: https://github.com/issues?q=is%3Aopen+is%3Aissue+repo%3AEIN-lab%2Fpupil-analysis+label%3Abug
-[search-pupil-analysis-repo-label-question]: https://github.com/issues?q=is%3Aopen+is%3Aissue+repo%3AEIN-lab%2Fpupil-analysis+label%3Aquestion
-[search-pupil-analysis-repo-label-help-wanted]: https://github.com/issues?q=is%3Aopen+is%3Aissue+repo%3AEIN-lab%2Fpupil-analysis+label%3Ahelp-wanted
-[search-pupil-analysis-repo-label-duplicate]: https://github.com/issues?q=is%3Aopen+is%3Aissue+repo%3AEIN-lab%2Fpupil-analysis+label%3Aduplicate
-[search-pupil-analysis-repo-label-wontfix]: https://github.com/issues?q=is%3Aopen+is%3Aissue+repo%3AEIN-lab%2Fpupil-analysis+label%3Awontfix
-[search-pupil-analysis-repo-label-invalid]: https://github.com/issues?q=is%3Aopen+is%3Aissue+repo%3AEIN-lab%2Fpupil-analysis+label%3Ainvalid
+[search-pupillometry-matlab-repo-label-enhancement]: https://github.com/issues?q=is%3Aopen+is%3Aissue+repo%3AEIN-lab%2Fpupillometry-matlab+label%3Aenhancement
+[search-pupillometry-matlab-repo-label-bug]: https://github.com/issues?q=is%3Aopen+is%3Aissue+repo%3AEIN-lab%2Fpupillometry-matlab+label%3Abug
+[search-pupillometry-matlab-repo-label-question]: https://github.com/issues?q=is%3Aopen+is%3Aissue+repo%3AEIN-lab%2Fpupillometry-matlab+label%3Aquestion
+[search-pupillometry-matlab-repo-label-help-wanted]: https://github.com/issues?q=is%3Aopen+is%3Aissue+repo%3AEIN-lab%2Fpupillometry-matlab+label%3Ahelp-wanted
+[search-pupillometry-matlab-repo-label-duplicate]: https://github.com/issues?q=is%3Aopen+is%3Aissue+repo%3AEIN-lab%2Fpupillometry-matlab+label%3Aduplicate
+[search-pupillometry-matlab-repo-label-wontfix]: https://github.com/issues?q=is%3Aopen+is%3Aissue+repo%3AEIN-lab%2Fpupillometry-matlab+label%3Awontfix
+[search-pupillometry-matlab-repo-label-invalid]: https://github.com/issues?q=is%3Aopen+is%3Aissue+repo%3AEIN-lab%2Fpupillometry-matlab+label%3Ainvalid
 
 ## Attribution
 
