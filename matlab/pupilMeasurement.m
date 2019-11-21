@@ -36,7 +36,7 @@ function R = pupilMeasurement(varargin)
 %                   Default = []
 %
 %       fileSavePath: A path to the folder where results are stored. Leave
-%                     empty to promt user for selection.
+%                     empty to prompt user for selection.
 %                     Default = []
 %
 %       startFrame: The first frame to be processed.
@@ -60,10 +60,13 @@ function R = pupilMeasurement(varargin)
 %                       'movmean'   - Moving average of neighboring non-missing entries.
 %                       'movmedian' - Moving median of neighboring non-missing entries.
 %
-%                   Note: 'movmean' and 'movmeadian' will only fill data,
-%                   if less than 5 subsequent values are missing.
-%                   Otherwise, NaNs will be filled in.
+%                       Note: 'movmean' and 'movmeadian' will only fill data,
+%                       if less than 5 subsequent values are missing.
+%                       Otherwise, NaNs will be filled in.
 %
+%       saveLabeledFrames:  Whether or not to also save labeled frames to
+%                           the results folder. 
+%                           Default = false
 %
 % Output:
 %       R:  A 1*n cell which contain the radii of the pupil in each
@@ -91,8 +94,10 @@ persistent fnGuess
 % Check all the input arguments
 pNames = {'fitMethod', 'spSelect', 'doPlot', 'thresVal', 'frameInterval', ...
     'videoPath', 'fileSavePath', 'startFrame', 'enhanceContrast', 'doCrop', ...
-    'skipBadFrames', 'fillBadData'};
-pValues = {2, 'line', false, [], 5, [], [], 1, false, false, true, 'movmedian'};
+    'skipBadFrames', 'fillBadData', 'saveLabeledFrames'};
+pValues = {2, 'line', false, [], 5, ...
+    [], [], 1, false, false, ...
+    true, 'movmedian', false};
 params = cell2struct(pValues, pNames, 2);
 
 % Parse function input arguments
@@ -100,7 +105,6 @@ params = utils.parsepropval2(params, varargin{:});
 
 spSelect = params.spSelect;
 videoPath = params.videoPath;
-fileSavePath = params.fileSavePath;
 startFrame = params.startFrame;
 enhanceContrast = params.enhanceContrast;
 doCrop = params.doCrop;
@@ -194,8 +198,15 @@ catch
 end
 
 % Select the folder to save all the processed images and radii text
-if isempty(fileSavePath)
-    fileSavePath = uigetdir(vpath,'Please create or select a folder to save the processed images and radii text');
+if isempty(params.fileSavePath)
+    params.fileSavePath = uigetdir(vpath,'Please create or select a folder to save the processed images and radii text');
+end
+
+% Check saveLabeledFrames flag
+try
+    logical(params.saveLabeledFrames);
+catch
+    error('''saveLabeledFrames'' must be convertible to logical.')
 end
 
 %% Start to process the videos
@@ -300,13 +311,13 @@ for j=1:numVideos
     
     % save the matrix or cell of R as a .mat file
     [~, fname] = fileparts(v.name);
-    radiiMat=fullfile(fileSavePath, [fname, '_radii.mat']);
+    radiiMat=fullfile(params.fileSavePath, [fname, '_radii.mat']);
     save(radiiMat, 'currR');
     
+    % save the matrix of Radii as a csv file
+    Tname = fullfile(params.fileSavePath, [fname, 'Pupil Radii.csv']);
+    dlmwrite(Tname,currR,'newline','pc','delimiter',';');
+
     R{j} = currR;
 end
-
-% save the matrix of Radii as a text file
-Tname = fullfile(fileSavePath, [fname, 'Pupil Radii.csv']);
-dlmwrite(Tname,R,'newline','pc','delimiter',';');
 end

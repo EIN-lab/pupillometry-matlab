@@ -7,13 +7,13 @@ function R = doFit(v, pupilSize, seedPoints, sThres, params, mask)
 %   it under the terms of the GNU General Public License as published by
 %   the Free Software Foundation, either version 3 of the License, or
 %   (at your option) any later version.
-% 
+%
 %   This program is distributed in the hope that it will be useful,
 %   but WITHOUT ANY WARRANTY; without even the implied warranty of
 %   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %   GNU General Public License for more details.
-%   
-%   You should have received a copy of the GNU General Public License 
+%
+%   You should have received a copy of the GNU General Public License
 %   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 fitMethod = params.fitMethod;
@@ -43,6 +43,16 @@ rmax = rmin*3;
 % Set start frame
 v.CurrentTime = params.startFrame/v.FrameRate;
 
+% If labeled frames are saved, create output folder
+if params.saveLabeledFrames
+    [~, videoName] = fileparts(v.Name);
+    saveFrameDir = fullfile(params.fileSavePath, videoName);
+    
+    if ~exist(saveFrameDir, 'dir')
+        mkdir(saveFrameDir);
+    end
+end
+
 while hasFrame(v)
     message = sprintf(['\n\nProcessing ',v.name]);
     utils.progbar(v.CurrentTime/v.Duration,'msg',message);
@@ -56,7 +66,7 @@ while hasFrame(v)
     end
     
     frameNum = round(v.CurrentTime * v.FrameRate);
-
+    
     % Skip unused frames, if necessary
     for iSkip = 1:frameInterval-1
         if hasFrame(v)
@@ -65,23 +75,23 @@ while hasFrame(v)
             break
         end
     end
-
+    
     % adjust contrast
     if params.enhanceContrast
         F = imadjust(F);
     end
-
+    
     F = medfilt2(F);
     if pupilSize < 20
         F = imresize(F, 2);
     end
-
+    
     if n == 0
         aveGVold = mean(mean(F));
     end
-
+    
     n=n+1;
-
+    
     % select one of the input seed points which is located inside the black
     % part of the pupil
     [s,sFormer,seedPoints,sThres,aveGVold] = checkSeedPoints(F,seedPoints,...
@@ -90,27 +100,27 @@ while hasFrame(v)
         R(n,:)=[frameNum,NaN];
         continue
     end
-
+    
     % Use regionGrowing to segment the pupil P is the detected pupil
     % boundary, and FI is a binary image of the pupil
     [~, FI] = regionGrowing(F,s,thresVal);
-
+    
     % Find the origin and radius of the pupil
-    [~, r] = imfindcircles(FI, [rmin, rmax],'ObjectPolarity','bright');
-
+    [o, r] = imfindcircles(FI, [rmin, rmax],'ObjectPolarity','bright');
+    
     % Try double rmax, if nothing identified
     if isempty(r)
         rmax = 2*rmax;
-        [~, r] = imfindcircles(FI, [rmin, rmax], 'ObjectPolarity', ...
+        [o, r] = imfindcircles(FI, [rmin, rmax], 'ObjectPolarity', ...
             'bright');
     end
-
+    
     % Cases where imfindcircles didn't identify any circle
     if isempty(r) && n == 1
         error('pupilMeasurement:doFit:NoCircle', ['No circular ', ...
-            'structure for radius %0.3f in this frame'], rmax);
+            'structure for radius %0.3f in first frame'], rmax);
     end
-
+    
     % If there are more than 1 fitted circle, use elliptical fit, or if
     % there is only one fitted circle, but its radius has big difference
     % from the radius in the former frame, use elliptical fit
@@ -121,42 +131,49 @@ while hasFrame(v)
     elseif 20 < frameInterval
         Rdiff = rmin*0.7;
     end
-
+    
     nCircle = length(r);
     isBigOrNone = isempty(r) || (n==1 && any(abs(r-pupilSize/2)>(rmin*0.5))); % first frame
     isBigOrNone = isBigOrNone || (n>1 && any(abs(r-R(n-1))>(Rdiff))); % subsequent frames
-
-    if (nCircle ~= 1 ||  isBigOrNone) && fitMethod ~= 1
+    isFirst = (n==1);
+    
+    if (nCircle ~= 1 ||  isBigOrNone || isFirst) && fitMethod ~= 1
         
-        p=regionprops(FI,'MajorAxisLength');
+        p=regionprops(FI, 'MajorAxisLength', 'MinorAxisLength', ...
+            'Centroid', 'Orientation');
         a = p.MajorAxisLength/2;
         R(n,:)=[frameNum,a];
         rmin = floor(a*0.9);
         rmax = ceil(a*1.1);
-
+        mode = 'ellipse';
+        
+        if params.saveLabeledFrames
+            plotImages(F, frameNum, saveFrameDir, 'mode', 'ellipse', ...
+                'props', p);
+        end
+        
     else % circular fit
         if nCircle > 1
             warning('Multiple circles fitted, using first');
         end
-
+        
         R(n,:)=[frameNum,r(1)];
         rmin = floor(r(1)*0.9);
         rmax = ceil(r(1)*1.1);
+        
+        if params.saveLabeledFrames
+            plotImages(F, frameNum, saveFrameDir, ...
+                'mode', 'circle', 'origin', o, 'radius', r)
+        end
     end
-
+    
     % plot the variation of the pupil radius
-    if doPlot && ~plotExist
-        plotExist = true;
-        plot(axRad, R(:,1),R(:,2))
-        drawnow
+    if doPlot 
+        h = plot(axRad, R(:,1),R(:,2));
         title('Pupil Radius');
         xlabel('frame number');
         ylabel('Pupil Radius/pixel');
-        
-    elseif doPlot && plotExist
-        plot(axRad, R(:,1),R(:,2)) % change the line data
         drawnow
     end
 end
-
 end

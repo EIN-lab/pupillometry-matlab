@@ -17,6 +17,7 @@
 % * |DOCROP| allows to crop the video before analysis.
 % * |SKIPBADFRAMES| is used to automatically discard bad frames.
 % * |FILLBADDATA| is the method used to fill values from skipped frames.
+% * |SAVELABELEDFRAMES| saves labeled frames, if enabled
         
 %% Details
 % |pupilMeasurement| is used to analyse pupil diameter changes from MP4
@@ -86,6 +87,7 @@ enhanceContrast = true;
 doCrop = true;
 skipBadFrames = true;
 fillBadData = 'linear';
+saveLabeledFrames = false;
 
 % Run pupilMeasurement with pre-defined parameters
 pup02 = pupilMeasurement('fitMethod', fitMethod, 'doPlot', doPlot, ...
@@ -93,7 +95,7 @@ pup02 = pupilMeasurement('fitMethod', fitMethod, 'doPlot', doPlot, ...
     'videoPath', videoPath, 'fileSavePath', fileSavePath, ...
     'startFrame', startFrame, 'enhanceContrast', enhanceContrast, ...
     'doCrop', doCrop, 'skipBadFrames', skipBadFrames, ...
-    'fillBadData', fillBadData)
+    'fillBadData', fillBadData, 'saveLabeledFrames', saveLabeledFrames)
 
 %%
 %
