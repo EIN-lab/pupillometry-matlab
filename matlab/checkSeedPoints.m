@@ -1,5 +1,5 @@
-function [s,sFormer,seedPoints,sThres,aveGVold] = checkSeedPoints(F,...
-    seedPoints,sThres,sFormer,aveGVold,skipBadFrames)
+function [s,sFormer,seedPoints,sThres,avgIntensity] = checkSeedPoints(F,...
+    seedPoints,sThres,sFormer,avgIntensityOld,skipBadFrames)
 % checkSeedPoints - check or select a valid seed point whose gray value is
 % lower than the sThres on image F.
 
@@ -23,13 +23,13 @@ val = [];
 
 % the gray-value threshould for seed points, sThres is varied with the
 % average gray value on current frame.
-aveGVnew = mean(mean(F));
+avgIntensity = mean(mean(F));
 
 % check that the correction factor isn't too big
-if abs(aveGVnew - aveGVold) < sThres
-    sThres = sThres + (aveGVnew - aveGVold);
+if abs(avgIntensity - avgIntensityOld) < sThres
+    sThres = sThres + (avgIntensity - avgIntensityOld);
 end
-aveGVold = aveGVnew;
+avgIntensityOld = avgIntensity;
 
 % Make sure we have a valid seed point
 for j=1:size(seedPoints,1)

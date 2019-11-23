@@ -9,9 +9,9 @@ function R = pupilMeasurement(varargin)
 %   R = pupilMeasurement('fitMethod',1,'frameInterval',50,...)
 %
 % Inputs:
-%       fitMethod:  1 - circular fit(if pupils are almost circular);
-%                   2 - circular+elliptical fit.
-%                   3 - elliptical fit only
+%       fitMethod:  1 - circular fit(if pupils are almost circular, 
+%                       doesn't perform very well);
+%                   2 - circular and elliptical fit.
 %                   Default = 2
 %
 %       spSelect:   Whether to estimate seedpoint from darkest point
@@ -138,8 +138,8 @@ if ~(floor(params.fitMethod) == params.fitMethod)
     error('''fitMethod'' must be an integer value.')
 end
 
-if ~any(params.fitMethod == [1, 2, 3])
-    error('''fitMethod'' must be one of [1, 2, 3].')
+if ~any(params.fitMethod == [1, 2])
+    error('''fitMethod'' must be one of [1, 2].')
 end
 
 % Check spSelect

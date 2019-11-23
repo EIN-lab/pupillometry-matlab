@@ -87,15 +87,15 @@ while hasFrame(v)
     end
     
     if n == 0
-        aveGVold = mean(mean(F));
+        avgIntensity = mean(mean(F));
     end
     
     n=n+1;
     
     % select one of the input seed points which is located inside the black
     % part of the pupil
-    [s,sFormer,seedPoints,sThres,aveGVold] = checkSeedPoints(F,seedPoints,...
-        sThres,sFormer,aveGVold, skipBadFrames);
+    [s,sFormer,seedPoints,sThres,avgIntensity] = checkSeedPoints(F,seedPoints,...
+        sThres,sFormer,avgIntensity, skipBadFrames);
     if isempty(s)
         R(n,:)=[frameNum,NaN];
         continue
