@@ -43,7 +43,7 @@
 %
 % Then, use the interactive dialogue box to select the video file
 % |sample_video.mp4|, which should be located in the subfolder
-% example, within the pupil-analysis root directory.
+% example, within the pupillometry-matlab root directory.
 %
 % <<pa_sel_movie.png>>
 %
@@ -55,8 +55,9 @@
 % The next stage is to draw the diameter across the pupil. Click on one
 % edge of the pupil and right-click on the opposite edge to confirm.
 %  
+% <<pa_sel_seed.png>>
 %
-% We have now created a CellScan object interactively.
+% We have now analysed a video.
 %
 %  pup01 = 
 % 
