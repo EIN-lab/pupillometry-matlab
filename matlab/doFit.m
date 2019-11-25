@@ -25,6 +25,7 @@ skipBadFrames = params.skipBadFrames;
 % Preallocate some variables
 sFormer = [];
 n = 0;
+isDoubled = false;
 
 % Initialize axes if necessary
 if doPlot
@@ -109,10 +110,14 @@ while hasFrame(v)
     [o, r] = imfindcircles(FI, [rmin, rmax],'ObjectPolarity','bright');
     
     % Try double rmax, if nothing identified
-    if isempty(r)
+    if isempty(r) && ~isDoubled
         rmax = 2*rmax;
         [o, r] = imfindcircles(FI, [rmin, rmax], 'ObjectPolarity', ...
             'bright');
+        % remember if we doubled rmax before
+        isDoubled = true; 
+    elseif ~isempty(r)
+        isDoubled = false;
     end
     
     % Cases where imfindcircles didn't identify any circle
@@ -145,14 +150,13 @@ while hasFrame(v)
         R(n,:)=[frameNum,a];
         rmin = floor(a*0.9);
         rmax = ceil(a*1.1);
-        mode = 'ellipse';
         
         if params.saveLabeledFrames
             plotImages(F, frameNum, saveFrameDir, 'mode', 'ellipse', ...
                 'props', p);
         end
         
-    else % circular fit
+    elseif nCircle > 0
         if nCircle > 1
             warning('Multiple circles fitted, using first');
         end
@@ -165,6 +169,9 @@ while hasFrame(v)
             plotImages(F, frameNum, saveFrameDir, ...
                 'mode', 'circle', 'origin', o, 'radius', r)
         end
+    else
+        R(n,:)=[frameNum,NaN];
+        continue
     end
     
     % plot the variation of the pupil radius
