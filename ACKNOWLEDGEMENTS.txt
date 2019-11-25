@@ -9,7 +9,7 @@ these if made aware of them.
 % --------------------------------------------------------------------------- %
 
 The following files/functions are copyright the authors (as listed) according  
-to the terms of the FreeBSD licence as listed at the bottom of this section
+to the terms of the FreeBSD license as listed at the bottom of this section
 
 - "GetFullPath", Copyright (c) 2010, Jan Simon, retrieved from 
   http://www.mathworks.com/matlabcentral/fileexchange/28249.
@@ -19,7 +19,7 @@ to the terms of the FreeBSD licence as listed at the bottom of this section
   the original code in our implementation. 
 
 - "regionGrowing" and its associated files, (c) 2011, Daniel Kellner, retrieved from 
-  https://ch.mathworks.com/matlabcentral/fileexchange/32532-region-growing-2d-3d-grayscale. 
+  https://www.mathworks.com/matlabcentral/fileexchange/32532-region-growing-2d-3d-grayscale. 
   We have modified the original code in our implementation.
 
 All rights reserved.
