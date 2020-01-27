@@ -68,6 +68,10 @@ function R = pupilMeasurement(varargin)
 %                           the results folder. 
 %                           Default = false
 %
+%       pixelSize:  The size of a single pixel in mm. If pixelSize is
+%                   provided, output will be given in mm instead of pixels.
+%                   Default = []
+%
 % Output:
 %       R:  A 1*n cell which contain the radii of the pupil in each
 %       processed frame, and these radii will be saved as a csv file
@@ -94,10 +98,10 @@ persistent fnGuess
 % Check all the input arguments
 pNames = {'fitMethod', 'spSelect', 'doPlot', 'thresVal', 'frameInterval', ...
     'videoPath', 'fileSavePath', 'startFrame', 'enhanceContrast', 'doCrop', ...
-    'skipBadFrames', 'fillBadData', 'saveLabeledFrames'};
+    'skipBadFrames', 'fillBadData', 'saveLabeledFrames', 'pixelSize'};
 pValues = {2, 'line', false, [], 5, ...
     [], [], 1, false, false, ...
-    true, 'movmedian', false};
+    true, 'movmedian', false, []};
 params = cell2struct(pValues, pNames, 2);
 
 % Parse function input arguments
@@ -307,6 +311,11 @@ for j=1:numVideos
             currR = fillmissing(currR, params.fillBadData, 5);
         otherwise
             currR = fillmissing(currR, params.fillBadData);
+    end
+    
+    % convert to mm, if pixel size was provided
+    if ~isempty(params.pixelSize)
+        currR(:,2) = currR(:,2) .* params.pixelSize;
     end
     
     % save the matrix or cell of R as a .mat file
