@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>pupilMeasurement</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-11-23"><meta name="DC.source" content="doc_pupilMeasurement.m"><style type="text/css">
+      --><title>pupilMeasurement</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-01-27"><meta name="DC.source" content="doc_pupilMeasurement.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -67,7 +67,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
   </style></head><body><div class="content"><h1>pupilMeasurement</h1><!--introduction--><p>Measure pupil diameter changes from video</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Usage</a></li><li><a href="#2">Optional arguments</a></li><li><a href="#3">Details</a></li><li><a href="#4">See Also</a></li><li><a href="#5">Examples</a></li></ul></div><h2 id="1">Usage</h2><pre class="language-matlab">R = pupilMeasurement()
-</pre><h2 id="2">Optional arguments</h2><div><ul><li><tt>FITMETHOD</tt> is the method used to approximate the pupil.</li><li><tt>SPSELECT</tt> is the method used to select seed points.</li><li><tt>DOPLOT</tt> controls the plotting behaviour.</li><li><tt>THRESVAL</tt> is the threshold value for binarizing.</li><li><tt>FRAMEINTERVAL</tt> determines the interval between analysed frames.</li><li><tt>VIDEOPATH</tt> is the path to the video file(s).</li><li><tt>FILESAVEPATH</tt> is the path to the results folder.</li><li><tt>STARTFRAME</tt> indicates the first frame to analyse.</li><li><tt>ENHANCECONTRAST</tt> controls automated contrast enhancement.</li><li><tt>DOCROP</tt> allows to crop the video before analysis.</li><li><tt>SKIPBADFRAMES</tt> is used to automatically discard bad frames.</li><li><tt>FILLBADDATA</tt> is the method used to fill values from skipped frames.</li><li><tt>SAVELABELEDFRAMES</tt> saves labeled frames, if enabled</li></ul></div><h2 id="3">Details</h2><p><tt>pupilMeasurement</tt> is used to analyse pupil diameter changes from MP4 video files and store these data to CSV and MAT files.</p><p><img vspace="5" hspace="5" src="doc_pupilMeasurement_01.png" alt=""> </p><h2 id="4">See Also</h2><div><ul><li><a href="matlab:doc('pupilMeasurement')"><tt>pupilMeasurement</tt> function documentation</a></li></ul></div><h2 id="5">Examples</h2><p>The following examples require the sample videos located in the example folder of this repository.</p><p><h3>Analyse a pupillometry video interactively</h3></p><p>The following example will illustrate the process of analysing a video interactively.</p><pre class="language-matlab"><span class="comment">% Call the main function</span>
+</pre><h2 id="2">Optional arguments</h2><div><ul><li><tt>FITMETHOD</tt> is the method used to approximate the pupil.</li><li><tt>SPSELECT</tt> is the method used to select seed points.</li><li><tt>DOPLOT</tt> controls the plotting behaviour.</li><li><tt>THRESVAL</tt> is the threshold value for binarizing.</li><li><tt>FRAMEINTERVAL</tt> determines the interval between analysed frames.</li><li><tt>VIDEOPATH</tt> is the path to the video file(s).</li><li><tt>FILESAVEPATH</tt> is the path to the results folder.</li><li><tt>STARTFRAME</tt> indicates the first frame to analyse.</li><li><tt>ENHANCECONTRAST</tt> controls automated contrast enhancement.</li><li><tt>DOCROP</tt> allows to crop the video before analysis.</li><li><tt>SKIPBADFRAMES</tt> is used to automatically discard bad frames.</li><li><tt>FILLBADDATA</tt> is the method used to fill values from skipped frames.</li><li><tt>SAVELABELEDFRAMES</tt> saves labeled frames, if enabled.</li><li><tt>PIXELSIZE</tt> specifies the size of a pixel in mm.</li></ul></div><h2 id="3">Details</h2><p><tt>pupilMeasurement</tt> is used to analyse pupil diameter changes from MP4 video files and store these data to CSV and MAT files.</p><p><img vspace="5" hspace="5" src="doc_pupilMeasurement_01.png" alt=""> </p><h2 id="4">See Also</h2><div><ul><li><a href="matlab:doc('pupilMeasurement')"><tt>pupilMeasurement</tt> function documentation</a></li></ul></div><h2 id="5">Examples</h2><p>The following examples require the sample videos located in the example folder of this repository.</p><p><h3>Analyse a pupillometry video interactively</h3></p><p>The following example will illustrate the process of analysing a video interactively.</p><pre class="language-matlab"><span class="comment">% Call the main function</span>
 pup01 = pupilMeasurement()
 </pre><p>Then, use the interactive dialogue box to select the video file <tt>sample_video.mp4</tt>, which should be located in the subfolder example, within the pupillometry-matlab root directory.</p><p><img vspace="5" hspace="5" src="pa_sel_movie.png" alt=""> </p><p>Use the interactive dialogue box to select the same folder for saving the results:</p><p><img vspace="5" hspace="5" src="pa_sel_res.png" alt=""> </p><p>The next stage is to draw the diameter across the pupil. Click on one edge of the pupil and right-click on the opposite edge to confirm.</p><p><img vspace="5" hspace="5" src="pa_sel_seed.png" alt=""> </p><p>We have now analysed a video.</p><pre>pup01 =</pre><pre>  cell</pre><pre>      [150x2 double]</pre><p>The process is almost exactly the same to anaylyse multiple videos; simply hold down CTRL in the file selection dialogue box and select as many videos as you like. They will be processed sequentially and you'll be asked to draw the initial diameter by hand for each video.</p><p><h3>Analyse pupil diameter with pre-defined parameters and optional tools</h3></p><pre class="codeinput"><span class="comment">% Define parameters</span>
 fitMethod = 2;
@@ -83,6 +83,7 @@ doCrop = true;
 skipBadFrames = true;
 fillBadData = <span class="string">'linear'</span>;
 saveLabeledFrames = false;
+pixelSize = [];
 
 <span class="comment">% Run pupilMeasurement with pre-defined parameters</span>
 pup02 = pupilMeasurement(<span class="string">'fitMethod'</span>, fitMethod, <span class="string">'doPlot'</span>, doPlot, <span class="keyword">...</span>
@@ -90,8 +91,9 @@ pup02 = pupilMeasurement(<span class="string">'fitMethod'</span>, fitMethod, <sp
     <span class="string">'videoPath'</span>, videoPath, <span class="string">'fileSavePath'</span>, fileSavePath, <span class="keyword">...</span>
     <span class="string">'startFrame'</span>, startFrame, <span class="string">'enhanceContrast'</span>, enhanceContrast, <span class="keyword">...</span>
     <span class="string">'doCrop'</span>, doCrop, <span class="string">'skipBadFrames'</span>, skipBadFrames, <span class="keyword">...</span>
-    <span class="string">'fillBadData'</span>, fillBadData, <span class="string">'saveLabeledFrames'</span>, saveLabeledFrames)
-</pre><img vspace="5" hspace="5" src="doc_pupilMeasurement_01.png" alt=""> <p><a href="./index.html">Home</a></p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017b</a><br></p></div><!--
+    <span class="string">'fillBadData'</span>, fillBadData, <span class="string">'saveLabeledFrames'</span>, saveLabeledFrames, <span class="keyword">...</span>
+    <span class="string">'pixelSize'</span>, pixelSize)
+</pre><img vspace="5" hspace="5" src="doc_pupilMeasurement_01.png" alt=""> <p><a href="./index.html">Home</a></p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% pupilMeasurement
 % Measure pupil diameter changes from video
@@ -112,7 +114,8 @@ pup02 = pupilMeasurement(<span class="string">'fitMethod'</span>, fitMethod, <sp
 % * |DOCROP| allows to crop the video before analysis.
 % * |SKIPBADFRAMES| is used to automatically discard bad frames.
 % * |FILLBADDATA| is the method used to fill values from skipped frames.
-% * |SAVELABELEDFRAMES| saves labeled frames, if enabled
+% * |SAVELABELEDFRAMES| saves labeled frames, if enabled.
+% * |PIXELSIZE| specifies the size of a pixel in mm.
         
 %% Details
 % |pupilMeasurement| is used to analyse pupil diameter changes from MP4
@@ -184,6 +187,7 @@ doCrop = true;
 skipBadFrames = true;
 fillBadData = 'linear';
 saveLabeledFrames = false;
+pixelSize = [];
 
 % Run pupilMeasurement with pre-defined parameters
 pup02 = pupilMeasurement('fitMethod', fitMethod, 'doPlot', doPlot, ...
@@ -191,7 +195,8 @@ pup02 = pupilMeasurement('fitMethod', fitMethod, 'doPlot', doPlot, ...
     'videoPath', videoPath, 'fileSavePath', fileSavePath, ...
     'startFrame', startFrame, 'enhanceContrast', enhanceContrast, ...
     'doCrop', doCrop, 'skipBadFrames', skipBadFrames, ...
-    'fillBadData', fillBadData, 'saveLabeledFrames', saveLabeledFrames)
+    'fillBadData', fillBadData, 'saveLabeledFrames', saveLabeledFrames, ...
+    'pixelSize', pixelSize)
 
 %%
 %
