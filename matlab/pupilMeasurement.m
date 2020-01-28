@@ -1,4 +1,4 @@
-function R = pupilMeasurement(varargin)
+function allR = pupilMeasurement(varargin)
 % Pupil Detection and Measurement Algorithm for Videos
 %
 % R = pupilMeasurement(fitMethod, doPlot, thresVal, frameInterval, videoPath,
@@ -302,31 +302,31 @@ for j=1:numVideos
     
     % Check the fit method and fit the pupil images
     v = VideoReader(videoPath{j});
-    currR = doFit(v, pupilSize, seedPoints, sThresh, params, mask);
+    R = doFit(v, pupilSize, seedPoints, sThresh, params, mask);
     
     switch params.fillBadData
         case 'nan'
             % do nothing
         case {'movmedian', 'movmean'}
-            currR = fillmissing(currR, params.fillBadData, 5);
+            R = fillmissing(R, params.fillBadData, 5);
         otherwise
-            currR = fillmissing(currR, params.fillBadData);
+            R = fillmissing(R, params.fillBadData);
     end
     
     % convert to mm, if pixel size was provided
     if ~isempty(params.pixelSize)
-        currR(:,2) = currR(:,2) .* params.pixelSize;
+        R(:,2) = R(:,2) .* params.pixelSize;
     end
     
     % save the matrix or cell of R as a .mat file
     [~, fname] = fileparts(v.name);
     radiiMat=fullfile(params.fileSavePath, [fname, '_radii.mat']);
-    save(radiiMat, 'currR');
+    save(radiiMat, 'R');
     
     % save the matrix of Radii as a csv file
     Tname = fullfile(params.fileSavePath, [fname, 'Pupil Radii.csv']);
-    dlmwrite(Tname,currR,'newline','pc','delimiter',';');
+    dlmwrite(Tname,R,'newline','pc','delimiter',';');
 
-    R{j} = currR;
+    allR{j} = R;
 end
 end
