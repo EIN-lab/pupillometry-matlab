@@ -1,7 +1,7 @@
 pupillometry-matlab
 =====
 
-This is an open-source MATLAB-based code bundle to measure and analyze pupil diameter changes. This code is part of a larger toolbox. Please see the [accompanying publication](https://www.nature.com/nprot), the [user guide](https://ein-lab.github.io/pupillometry-raspi) and the [s191113_example.m](https://github.com/EIN-lab/pupillometry-matlab/blob/master/s191113_example.m) script for more detailed instructions on how to load and analyze data.
+This is an open-source MATLAB-based code bundle to measure and analyze pupil diameter changes. This code is part of a larger toolbox. Please see the [accompanying publication](https://www.nature.com/articles/s41596-020-0324-6), the [user guide](https://ein-lab.github.io/pupillometry-raspi) and the [s191113_example.m](https://github.com/EIN-lab/pupillometry-matlab/blob/master/s191113_example.m) script for more detailed instructions on how to load and analyze data.
 
 Getting Help
 ------------
@@ -25,7 +25,7 @@ Although the GNU General Public License does not permit terms requiring users to
 Authors
 -------
 
-Please refer to the [accompanying publication](https://www.nature.com/nprot) or use the matlab function utils.citation().
+Please refer to the [accompanying publication](https://www.nature.com/articles/s41596-020-0324-6) or use the matlab function utils.citation().
 
 Code of Conduct
 -------
